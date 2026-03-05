@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DUNGEON OF DESPAIR — Complete Walkthrough</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --green: #00ff41;
+    --dim-green: #007a1e;
+    --dark-green: #003d0e;
+    --bg: #020c02;
+    --amber: #ffb000;
+    --red: #ff3333;
+    --paper: #0a180a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.25;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* CRT flicker */
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.95; }
+    97% { opacity: 1; }
+    98% { opacity: 0.9; }
+  }
+  body { animation: flicker 8s infinite; }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 16px 14px 40px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    border: 2px solid var(--green);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    position: relative;
+    background: var(--paper);
+    box-shadow: 0 0 30px rgba(0,255,65,0.15), inset 0 0 30px rgba(0,255,65,0.03);
+  }
+
+  .header::before, .header::after {
+    content: '████████████████████████████████████████████████';
+    display: block;
+    color: var(--dim-green);
+    font-size: 10px;
+    letter-spacing: -1px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(18px, 5vw, 30px);
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(0,255,65,0.8), 0 0 40px rgba(0,255,65,0.4);
+    letter-spacing: 4px;
+    margin: 6px 0 4px;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    color: var(--amber);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .meta {
+    color: var(--dim-green);
+    font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* Warning box */
+  .warning {
+    border: 1px solid var(--amber);
+    padding: 6px 10px;
+    margin-bottom: 12px;
+    background: rgba(255,176,0,0.04);
+    color: var(--amber);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  .warning strong { display: block; margin-bottom: 3px; letter-spacing: 2px; }
+
+  /* Section headers */
+  .area-header {
+    margin: 18px 0 8px;
+    padding: 4px 0 3px;
+    border-bottom: 1px solid var(--dim-green);
+  }
+  .area-header h2 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255,176,0,0.5);
+  }
+  .area-header .room-range {
+    color: var(--dim-green);
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  /* Puzzle block */
+  .puzzle {
+    margin-bottom: 10px;
+    padding-left: 0;
+  }
+
+  .puzzle-number {
+    color: var(--dim-green);
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 1px;
+  }
+
+  .puzzle-title {
+    color: var(--green);
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 4px;
+    text-shadow: 0 0 8px rgba(0,255,65,0.4);
+  }
+
+  .location-desc {
+    color: #4a8a5a;
+    font-size: 12px;
+    font-style: italic;
+    margin-bottom: 5px;
+    padding-left: 8px;
+    border-left: 2px solid var(--dark-green);
+    line-height: 1.3;
+  }
+
+  /* Commands */
+  .cmd {
+    display: block;
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    margin: 1px 0;
+    padding: 0;
+    line-height: 1.2;
+  }
+  .cmd::before {
+    content: '> ';
+    color: var(--dim-green);
+  }
+
+  /* Game responses */
+  .response {
+    color: #3a7a4a;
+    font-size: 12px;
+    padding: 1px 0 2px 10px;
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  /* Failed attempts */
+  .fail {
+    color: #444;
+    font-size: 11px;
+    padding: 1px 0 1px 10px;
+    text-decoration: line-through;
+    text-decoration-color: #333;
+    line-height: 1.25;
+  }
+  .fail::before { content: '(tried: '; }
+  .fail::after { content: ')'; }
+
+  /* Notes */
+  .note {
+    background: rgba(0,255,65,0.02);
+    border-left: 2px solid var(--dim-green);
+    padding: 4px 8px;
+    margin: 4px 0;
+    font-size: 11px;
+    color: #4a7a5a;
+    line-height: 1.3;
+  }
+  .note strong { color: var(--amber); }
+
+  /* Deaths */
+  .death {
+    color: var(--red);
+    font-size: 11px;
+    padding: 1px 0 1px 10px;
+    opacity: 0.8;
+    line-height: 1.25;
+  }
+  .death::before { content: '*** '; }
+  .death::after { content: ' ***'; }
+
+  /* Score tracker */
+  .score-box {
+    border: 1px solid var(--dim-green);
+    padding: 5px 10px;
+    margin: 12px 0;
+    font-size: 11px;
+    color: var(--dim-green);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+    line-height: 1.3;
+  }
+  .score-box span { color: var(--amber); }
+
+  /* Footer */
+  .footer {
+    margin-top: 24px;
+    padding-top: 8px;
+    border-top: 1px solid var(--dark-green);
+    text-align: center;
+    font-size: 11px;
+    color: var(--dim-green);
+    line-height: 1.5;
+  }
+
+  .blink {
+    animation: blink 1.2s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  hr.divider {
+    border: none;
+    border-top: 1px dashed var(--dark-green);
+    margin: 10px 0;
+  }
+
+  .spoiler-tag {
+    background: var(--dark-green);
+    color: var(--dim-green);
+    font-size: 10px;
+    padding: 0px 4px;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    margin-left: 4px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="title">DUNGEON OF DESPAIR</div>
+    <div class="subtitle">An Adventure in 50 Puzzles &nbsp;|&nbsp; Complete Walkthrough & Transcript</div>
+    <div class="meta">
+      Infocom-Compatible &nbsp;·&nbsp; DESPAIR v1.03 &nbsp;·&nbsp; 1984 &nbsp;·&nbsp; Softronix Inc.<br>
+      Walkthrough compiled by: Frustrated Gamer &nbsp;·&nbsp; CompuServe Forum Post #4471
+    </div>
+  </div>
+
+  <div class="warning">
+    <strong>⚠ WARNING — READ BEFORE PLAYING</strong>
+    This walkthrough exists because DUNGEON OF DESPAIR is, without question, the worst text adventure ever published. I have spent 340 hours on this game. My marriage has suffered. My cat no longer trusts me. The puzzles are not "difficult" — they are "broken" or "insane" or "authored by someone who hates you personally." Every solution in this document was discovered either by accident, by exhaustive verb-spamming, or by bribing the programmer's nephew at a convention. You have been warned. Type along if you must.
+  </div>
+
+  <!-- ═══════════════════════════════════ AREA 1 ═══════════════════════════════════ -->
+  <div class="area-header">
+    <h2>Area 1: The Starting Cottage</h2>
+    <div class="room-range">Puzzles 1–9</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 001</div>
+    <div class="puzzle-title">The Front Door <span class="spoiler-tag">verb issue</span></div>
+    <div class="location-desc">You are standing outside a cottage. There is a door to the north. A welcome mat lies at your feet.</div>
+    <div class="fail">OPEN DOOR, ENTER DOOR, GO NORTH, KNOCK DOOR, USE DOOR, PUSH DOOR, TURN HANDLE, PULL DOOR</div>
+    <div class="note"><strong>NOTE:</strong> The door is not locked. It is not stuck. The game simply does not understand the word OPEN in this context because the programmer forgot to include the synonym table for exterior doors. The only verb that works here is VISIT.</div>
+    <span class="cmd">VISIT DOOR</span>
+    <div class="response">You walk up and visit the door. It swings open as if delighted to receive company.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 002</div>
+    <div class="puzzle-title">The Welcome Mat <span class="spoiler-tag">invisible item</span></div>
+    <div class="location-desc">Cottage exterior. A welcome mat is here.</div>
+    <div class="note"><strong>NOTE:</strong> You must take the welcome mat. There is no reason given. It becomes important in Puzzle 37. If you do not take it now, you cannot finish the game and there is no way to go back.</div>
+    <span class="cmd">TAKE MAT</span>
+    <div class="response">Taken. The mat smells faintly of regret.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 003</div>
+    <div class="puzzle-title">The Cottage Interior — Locked Chest <span class="spoiler-tag">moon logic</span></div>
+    <div class="location-desc">You are inside the cottage. There is a wooden chest here. On the mantle sits a candle. A grandfather clock ticks in the corner.</div>
+    <div class="fail">OPEN CHEST, UNLOCK CHEST, EXAMINE CHEST, BREAK CHEST, PICK LOCK</div>
+    <div class="death">You tried to kick the chest. The chest kicks back. You are dead.</div>
+    <div class="note"><strong>NOTE:</strong> The chest opens at exactly 3:00. The clock must be set to 3:00 first. There is no in-game clue for this. The clock currently reads 7:42.</div>
+    <span class="cmd">EXAMINE CLOCK</span>
+    <div class="response">A grandfather clock. It reads 7:42. It has hands.</div>
+    <span class="cmd">SET CLOCK TO THREE</span>
+    <div class="response">You set the clock to 3:00. A distant chime sounds. The chest clicks open.</div>
+    <span class="cmd">OPEN CHEST</span>
+    <div class="response">The chest is open. Inside is a brass key and a note reading "DO NOT USE THE KEY."</div>
+    <span class="cmd">TAKE KEY</span>
+    <div class="response">Taken.</div>
+    <div class="note"><strong>NOTE:</strong> Use the key. Ignore the note. The note is a lie. If you obey the note, you will reach Puzzle 22 with no key and softlock the game. The programmer thought this was funny. It is not funny.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 004</div>
+    <div class="puzzle-title">The Candle <span class="spoiler-tag">timing puzzle</span></div>
+    <div class="location-desc">Cottage interior. The candle on the mantle is unlit.</div>
+    <div class="fail">LIGHT CANDLE, TAKE CANDLE, BURN CANDLE, IGNITE CANDLE</div>
+    <div class="note"><strong>NOTE:</strong> You have no matches or lighter. The game will not tell you this. You must sneeze on the candle. This is established exactly nowhere in the fiction.</div>
+    <span class="cmd">SNEEZE</span>
+    <div class="response">You sneeze. The candle, mysteriously, ignites.</div>
+    <span class="cmd">TAKE CANDLE</span>
+    <div class="response">You take the lit candle. You will need this. DO NOT PUT IT DOWN OR IT GOES OUT FOREVER.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 005</div>
+    <div class="puzzle-title">The Trapdoor <span class="spoiler-tag">hidden exit</span></div>
+    <div class="location-desc">Cottage interior. The room description does not mention a trapdoor.</div>
+    <div class="fail">GO EAST, GO WEST, GO SOUTH, EXAMINE FLOOR, SEARCH ROOM</div>
+    <div class="note"><strong>NOTE:</strong> The trapdoor exists. EXAMINE RUG to find it. The rug is not mentioned in the room description. The game does not know the word LOOK UNDER but it does know EXAMINE.</div>
+    <span class="cmd">EXAMINE RUG</span>
+    <div class="response">Under the rug (which you apparently moved with your mind) is a trapdoor.</div>
+    <span class="cmd">OPEN TRAPDOOR</span>
+    <div class="response">The trapdoor swings open, revealing a ladder going down.</div>
+    <span class="cmd">GO DOWN</span>
+    <div class="response">You descend into the cellar.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 006</div>
+    <div class="puzzle-title">The Dark Cellar <span class="spoiler-tag">light puzzle</span></div>
+    <div class="location-desc">It is pitch black. You are likely to be eaten by a grue. Or perhaps a "groo." The game spells it differently each time.</div>
+    <div class="note"><strong>NOTE:</strong> You have the candle. This should work. It does not work because the game requires you to explicitly HOLD UP CANDLE before it counts as a light source.</div>
+    <span class="cmd">HOLD UP CANDLE</span>
+    <div class="response">You hold the candle aloft. The cellar is revealed. A barrel, a spider, and an inexplicable filing cabinet are here.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 007</div>
+    <div class="puzzle-title">The Filing Cabinet <span class="spoiler-tag">anachronism puzzle</span></div>
+    <div class="location-desc">Cellar. A filing cabinet stands against the wall. The game is set in medieval times.</div>
+    <div class="fail">OPEN CABINET, SEARCH CABINET, EXAMINE CABINET, READ CABINET</div>
+    <div class="note"><strong>NOTE:</strong> The filing cabinet requires a four-digit PIN. You learn the PIN by reading the back of the box the game came in. The PIN is 1138. If you don't have the box, I'm sorry. The PIN is 1138.</div>
+    <span class="cmd">ENTER 1138</span>
+    <div class="response">The cabinet clicks open. Inside is a silver whistle and a document labeled "PLOT."</div>
+    <span class="cmd">TAKE WHISTLE</span>
+    <div class="response">Taken.</div>
+    <span class="cmd">READ DOCUMENT</span>
+    <div class="response">The document reads: "You are a hero. There is a dungeon. Go to the dungeon. Good luck." This is, in its entirety, the game's plot.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 008</div>
+    <div class="puzzle-title">The Barrel <span class="spoiler-tag">red herring</span></div>
+    <div class="location-desc">Cellar. A large barrel dominates the room.</div>
+    <div class="note"><strong>NOTE:</strong> The barrel contains wine. The wine does nothing. You can drink it, which wastes two turns. Do not interact with the barrel at all. I wasted eleven hours on the barrel. There is nothing in or about the barrel that matters. I am including it here as a warning to others.</div>
+    <span class="cmd">IGNORE BARREL</span>
+    <div class="response">I don't know the word "ignore."</div>
+    <div class="note">Just walk past it. Go NORTH.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 009</div>
+    <div class="puzzle-title">The Cellar Spider <span class="spoiler-tag">companion puzzle</span></div>
+    <div class="location-desc">Cellar. A large spider sits in a web. It regards you with what you can only describe as professional skepticism.</div>
+    <div class="fail">KILL SPIDER, HIT SPIDER, ATTACK SPIDER, AVOID SPIDER, IGNORE SPIDER, TAKE SPIDER</div>
+    <div class="note"><strong>NOTE:</strong> The spider becomes your companion if you compliment it. This is the only time in the game the COMPLIMENT verb is used. It is used here, and only here.</div>
+    <span class="cmd">COMPLIMENT SPIDER</span>
+    <div class="response">You tell the spider it has lovely eyes. All eight of them. The spider descends and sits on your shoulder. You have gained a spider companion. Its name is Gerald.</div>
+  </div>
+
+  <div class="score-box">
+    <div>AREA 1 COMPLETE</div>
+    <div>Score: <span>12/400</span></div>
+    <div>Moves: <span>~28</span></div>
+    <div>Gerald: <span>Present</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════ AREA 2 ═══════════════════════════════════ -->
+  <div class="area-header">
+    <h2>Area 2: The Forest Path</h2>
+    <div class="room-range">Puzzles 10–17</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 010</div>
+    <div class="puzzle-title">The Troll Bridge — Toll <span class="spoiler-tag">currency puzzle</span></div>
+    <div class="location-desc">You stand before a bridge. A troll blocks your path. "Pay the toll," it says. "One coin."</div>
+    <div class="fail">PAY TROLL, GIVE COIN TO TROLL, BRIBE TROLL, FIGHT TROLL, SNEAK PAST TROLL</div>
+    <div class="note"><strong>NOTE:</strong> You have no coin. The game has never given you a coin. You must make one. Examine the brass key. It is described as "nearly coin-shaped." The game accepts FLATTEN KEY as a verb to make a makeshift coin. You need the rock from two screens back that was also not mentioned in any room description.</div>
+    <span class="cmd">GO BACK</span>
+    <span class="cmd">EXAMINE GROUND</span>
+    <div class="response">You notice a rock. It was here the whole time.</div>
+    <span class="cmd">TAKE ROCK</span>
+    <span class="cmd">GO SOUTH</span>
+    <span class="cmd">FLATTEN KEY WITH ROCK</span>
+    <div class="response">You hammer the key into a rough disc shape. It resembles a coin if you squint.</div>
+    <span class="cmd">GIVE COIN TO TROLL</span>
+    <div class="response">The troll bites it, shrugs, and steps aside.</div>
+    <div class="note"><strong>NOTE:</strong> You have now destroyed the key. This is fine. The lock from Puzzle 22 can also be opened by telling the lock a joke. Specifically, the joke must be "WHY DID THE SKELETON GO TO THE PARTY ALONE? BECAUSE HE HAD NO BODY TO GO WITH." I am not making this up.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 011</div>
+    <div class="puzzle-title">The Troll Bridge — The Troll's Question <span class="spoiler-tag">trivia puzzle</span></div>
+    <div class="location-desc">The troll takes your coin then raises a hand. "One more thing. Answer me this: what is the airspeed velocity of an unladen swallow?"</div>
+    <div class="fail">AFRICAN OR EUROPEAN, ELEVEN METERS PER SECOND, I DON'T KNOW</div>
+    <div class="note"><strong>NOTE:</strong> The answer is not the Monty Python reference. The answer is not any real measurement. The answer the game accepts is THURSDAY. No explanation is given. THURSDAY.</div>
+    <span class="cmd">SAY THURSDAY</span>
+    <div class="response">The troll nods sagely. "Correct," it says. "None may challenge the Thursday." You may cross.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 012</div>
+    <div class="puzzle-title">The Enchanted Tree <span class="spoiler-tag">music puzzle</span></div>
+    <div class="location-desc">A vast oak stands in a clearing. Its trunk has a face. The face looks annoyed.</div>
+    <div class="fail">TALK TO TREE, ASK TREE, EXAMINE TREE, CLIMB TREE, HUG TREE</div>
+    <div class="note"><strong>NOTE:</strong> The tree wants music. You have the silver whistle. However, you cannot BLOW WHISTLE or PLAY WHISTLE. You must TOOT WHISTLE. Only TOOT. The tree is very particular about terminology.</div>
+    <span class="cmd">TOOT WHISTLE</span>
+    <div class="response">You toot the whistle. A single, reedy note fills the air. The tree's face breaks into a reluctant smile. "Fine," it says. "You may have this." A branch lowers, offering a golden acorn.</div>
+    <span class="cmd">TAKE ACORN</span>
+    <div class="response">You take the golden acorn. It hums quietly.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 013</div>
+    <div class="puzzle-title">The Invisible Wall <span class="spoiler-tag">parser issue</span></div>
+    <div class="location-desc">Forest path. All exits seem blocked. You have tried every direction.</div>
+    <div class="fail">GO NORTH, GO SOUTH, GO EAST, GO WEST, GO UP, GO DOWN, GO IN, GO OUT</div>
+    <div class="note"><strong>NOTE:</strong> The exit is NORTHEAST. The game has not used diagonal directions anywhere before this point and does not use them anywhere after. NORTHEAST. Just this once.</div>
+    <span class="cmd">GO NORTHEAST</span>
+    <div class="response">You push through some branches and find yourself on a winding path.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 014</div>
+    <div class="puzzle-title">The Pond — The Fish <span class="spoiler-tag">animal interaction</span></div>
+    <div class="location-desc">A pond reflects the grey sky. A fish bobs near the surface. It appears to be reading a very small newspaper.</div>
+    <div class="fail">TAKE FISH, CATCH FISH, TALK TO FISH, EXAMINE FISH, READ NEWSPAPER</div>
+    <div class="note"><strong>NOTE:</strong> Gerald the spider (from Puzzle 9) is required here. If you do not have Gerald, you cannot proceed and the game will not tell you why. Gerald catches the fish for you if you command him.</div>
+    <span class="cmd">GERALD, CATCH FISH</span>
+    <div class="response">Gerald leaps from your shoulder with surprising athletic form and returns with a small, indignant fish. The fish has dropped its newspaper.</div>
+    <span class="cmd">TAKE NEWSPAPER</span>
+    <div class="response">You take the tiny fish newspaper. The headline reads "LOCAL HERO STRUGGLES WITH BASIC TASKS."</div>
+    <div class="note"><strong>NOTE:</strong> Keep the newspaper. Puzzle 41. Don't ask.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 015</div>
+    <div class="puzzle-title">The Witch's Hut — Entry <span class="spoiler-tag">etiquette puzzle</span></div>
+    <div class="location-desc">A hut made of suspiciously brown materials sits among the trees. Smoke rises from the chimney.</div>
+    <div class="fail">KNOCK DOOR, OPEN DOOR, ENTER HUT, CALL OUT</div>
+    <div class="death">You tried to enter without knocking. The door turned into a mouth and ate you.</div>
+    <div class="note"><strong>NOTE:</strong> You must knock AND wait for three turns AND say "good morning" even if it is not morning. The game tracks none of these conditions visibly. You will just get "nothing happens" until all three are satisfied.</div>
+    <span class="cmd">KNOCK</span>
+    <div class="response">You knock.</div>
+    <span class="cmd">WAIT</span>
+    <span class="cmd">WAIT</span>
+    <span class="cmd">WAIT</span>
+    <span class="cmd">SAY GOOD MORNING</span>
+    <div class="response">The door opens. An ancient witch peers out. "Well," she says, "at least you have manners."</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 016</div>
+    <div class="puzzle-title">The Witch's Trade <span class="spoiler-tag">inventory puzzle</span></div>
+    <div class="location-desc">Witch's hut interior. The witch wants something. She doesn't say what.</div>
+    <div class="fail">ASK WITCH WHAT SHE WANTS, GIVE FISH, GIVE ACORN, GIVE WHISTLE, GIVE CANDLE, GIVE MAT</div>
+    <div class="note"><strong>NOTE:</strong> She wants the fish. But only if you have first READ the fish's newspaper. If you haven't read it, GIVE FISH produces "She wrinkles her nose." If you have read it, she takes the fish and gives you a potion. The newspaper reading unlocks a hidden flag with absolutely no foreshadowing.</div>
+    <span class="cmd">READ NEWSPAPER</span>
+    <div class="response">You read about local goings-on. A barn dance. A missing cow. Your own struggles, reported without sympathy.</div>
+    <span class="cmd">GIVE FISH TO WITCH</span>
+    <div class="response">The witch takes the fish with a knowing smile. "Ah, an informed visitor." She hands you a small blue potion.</div>
+    <span class="cmd">TAKE POTION</span>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 017</div>
+    <div class="puzzle-title">The Forest Maze <span class="spoiler-tag">mapping puzzle</span></div>
+    <div class="location-desc">A maze of twisty little paths, all alike. You will be here for a while.</div>
+    <div class="note"><strong>NOTE:</strong> The maze is 7×7 rooms. The correct path through is: N, N, E, S, E, E, N, N, W, N, E, N. If you deviate, you loop. There are no landmarks. The game's hint system, which costs $2.99/minute on the 1-900 number listed in the manual, does not cover the maze ("technical issue"). Draw a map. I'm sorry.</div>
+    <span class="cmd">N</span><span class="cmd">N</span><span class="cmd">E</span><span class="cmd">S</span><span class="cmd">E</span><span class="cmd">E</span><span class="cmd">N</span><span class="cmd">N</span><span class="cmd">W</span><span class="cmd">N</span><span class="cmd">E</span><span class="cmd">N</span>
+    <div class="response">You emerge from the forest. A stone tower looms before you.</div>
+  </div>
+
+  <div class="score-box">
+    <div>AREA 2 COMPLETE</div>
+    <div>Score: <span>67/400</span></div>
+    <div>Moves: <span>~85</span></div>
+    <div>Sanity: <span>Questionable</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════ AREA 3 ═══════════════════════════════════ -->
+  <div class="area-header">
+    <h2>Area 3: The Stone Tower</h2>
+    <div class="room-range">Puzzles 18–25</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 018</div>
+    <div class="puzzle-title">The Tower Door — A Familiar Problem <span class="spoiler-tag">callbacks</span></div>
+    <div class="location-desc">A massive iron door blocks the tower entrance.</div>
+    <div class="fail">OPEN DOOR, VISIT DOOR, PUSH DOOR, BREAK DOOR, KNOCK DOOR</div>
+    <div class="note"><strong>NOTE:</strong> Not VISIT this time. Also not OPEN. The verb is SALUTE. You must salute the door. The door has a faint heraldic crest. This is the only visual cue and it requires EXAMINE DOOR first.</div>
+    <span class="cmd">EXAMINE DOOR</span>
+    <div class="response">The door bears a faded military crest. It seems to demand respect.</div>
+    <span class="cmd">SALUTE DOOR</span>
+    <div class="response">You snap a crisp salute. The door swings open with a creak of approval.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 019</div>
+    <div class="puzzle-title">The Guard Skeleton <span class="spoiler-tag">joke puzzle</span></div>
+    <div class="location-desc">Tower ground floor. A skeleton guard blocks the staircase. It rattles its bones menacingly.</div>
+    <div class="fail">FIGHT SKELETON, ATTACK SKELETON, PUSH SKELETON, BRIBE SKELETON, TALK TO SKELETON, USE BLUE POTION ON SKELETON</div>
+    <div class="note"><strong>NOTE:</strong> Remember the lock joke from Puzzle 10's note? It works here too. You must tell the skeleton the specific skeleton joke. This is the game's single most absurd puzzle and I say that having just saluted a door.</div>
+    <span class="cmd">TELL SKELETON JOKE</span>
+    <div class="response">I don't understand "tell skeleton joke." Try being more specific.</div>
+    <span class="cmd">SAY WHY DID THE SKELETON GO TO THE PARTY ALONE BECAUSE HE HAD NO BODY TO GO WITH</span>
+    <div class="response">The skeleton pauses. Its jaw drops (literally). It begins to rattle uncontrollably — laughter. It steps aside, still chuckling. Bits of it fall off.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 020</div>
+    <div class="puzzle-title">The Crumbling Staircase <span class="spoiler-tag">weight puzzle</span></div>
+    <div class="location-desc">The staircase looks unstable. Each step is labelled with a maximum weight.</div>
+    <div class="fail">GO UP, CLIMB STAIRS, RUN UP, JUMP UP</div>
+    <div class="death">The stairs collapse. You fall. You are dead. (This happens on every attempt if you're carrying too much.)</div>
+    <div class="note"><strong>NOTE:</strong> The game has an invisible weight system it has never mentioned. You must DROP the rock before ascending. The rock was the only item you might naturally have dropped already, in which case you still have it because you're a hoarder like me, and now you must drop it here.</div>
+    <span class="cmd">DROP ROCK</span>
+    <div class="response">You leave the rock at the base of the stairs.</div>
+    <span class="cmd">CLIMB STAIRS</span>
+    <div class="response">You ascend carefully. The stairs groan but hold.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 021</div>
+    <div class="puzzle-title">The Locked Library Door <span class="spoiler-tag">verb recall</span></div>
+    <div class="location-desc">Tower second floor. A door labeled LIBRARY is locked.</div>
+    <div class="note"><strong>NOTE:</strong> No key. You destroyed it. The joke works here. You do not need to type the full joke. Just SAY SKELETON JOKE and the game now recognises it as a phrase since you used it in Puzzle 19. This is the only time the game demonstrates memory of a prior puzzle solution.</div>
+    <span class="cmd">SAY SKELETON JOKE</span>
+    <div class="response">You tell the skeleton joke to the door. The door does not laugh. But the lock, which apparently has a sense of humour, clicks open.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 022</div>
+    <div class="puzzle-title">The Library — The Floating Book <span class="spoiler-tag">magic item</span></div>
+    <div class="location-desc">A dusty library. Books line the walls. One book floats in the centre of the room at eye level, glowing faintly.</div>
+    <div class="fail">READ BOOK, TAKE BOOK, OPEN BOOK, GRAB BOOK, REACH FOR BOOK</div>
+    <div class="death">You grabbed the book with bare hands. It exploded. You are dead.</div>
+    <div class="note"><strong>NOTE:</strong> You must use the welcome mat (from Puzzle 2!) as oven mitts to take the book safely. If you do not have the mat, start over. I said this at Puzzle 2. I told you.</div>
+    <span class="cmd">WEAR MAT</span>
+    <div class="response">You fashion the mat into crude gloves. They say "WELCOME" on the palms.</div>
+    <span class="cmd">TAKE BOOK</span>
+    <div class="response">Protected by the mat, you grasp the book. It hums with energy but does not explode.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 023</div>
+    <div class="puzzle-title">The Library — Reading the Book <span class="spoiler-tag">learn spell</span></div>
+    <div class="location-desc">Library. You hold the glowing book.</div>
+    <span class="cmd">READ BOOK</span>
+    <div class="response">The book contains one spell: FLORBINATE. "To florbinate," the book explains, "is to cause a thing to become slightly more Tuesday." You learn the spell FLORBINATE. You have no idea what this means but you learn it anyway.</div>
+    <div class="note"><strong>NOTE:</strong> FLORBINATE is used exactly once, in Puzzle 44. It makes a dragon more Tuesday, which calms it. Do not question this. File it away.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 024</div>
+    <div class="puzzle-title">The Tower Roof — The Wind Puzzle <span class="spoiler-tag">environmental</span></div>
+    <div class="location-desc">Tower roof. The wind is fierce. Across a chasm is another platform. There is no bridge.</div>
+    <div class="fail">JUMP, JUMP CHASM, FLY, USE POTION, THROW ACORN, BLOW WHISTLE</div>
+    <div class="note"><strong>NOTE:</strong> The wind blows east. You must open your inventory, select the welcome mat (still on your hands as gloves), and USE MAT AS SAIL. This treats you as a sail-powered object. You will glide across. No, there is no physical sense in which this is plausible.</div>
+    <span class="cmd">USE MAT AS SAIL</span>
+    <div class="response">You hold your mat-gloves wide. The wind catches them. You are lifted and carried east across the chasm like an extremely reluctant kite.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 025</div>
+    <div class="puzzle-title">The Gargoyle Statue <span class="spoiler-tag">item combination</span></div>
+    <div class="location-desc">Eastern Platform. A stone gargoyle sits here. Its mouth is open. Inside the mouth: nothing. But there's a slot in the base shaped like an acorn.</div>
+    <span class="cmd">PUT ACORN IN SLOT</span>
+    <div class="response">The acorn fits perfectly. The gargoyle's eyes light up gold. It opens its mouth wider and vomits out a grappling hook with practiced efficiency.</div>
+    <span class="cmd">TAKE HOOK</span>
+    <div class="response">Taken. The gargoyle looks relieved.</div>
+  </div>
+
+  <div class="score-box">
+    <div>AREA 3 COMPLETE</div>
+    <div>Score: <span>145/400</span></div>
+    <div>Moves: <span>~140</span></div>
+    <div>Gerald: <span>Still present, somehow</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════ AREA 4 ═══════════════════════════════════ -->
+  <div class="area-header">
+    <h2>Area 4: The Dungeon Proper</h2>
+    <div class="room-range">Puzzles 26–35</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 026</div>
+    <div class="puzzle-title">The Dungeon Gate <span class="spoiler-tag">tool use</span></div>
+    <div class="location-desc">A gate of iron bars. Beyond it: darkness and the smell of moss.</div>
+    <span class="cmd">THROW HOOK AT GATE</span>
+    <div class="response">The hook catches on the bars.</div>
+    <span class="cmd">PULL HOOK</span>
+    <div class="response">The gate tears free. You enter the dungeon.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 027</div>
+    <div class="puzzle-title">The Pit Room <span class="spoiler-tag">timing puzzle</span></div>
+    <div class="location-desc">A room with a large pit in the centre. A pendulum swings over the pit. Chains hang from the ceiling.</div>
+    <div class="fail">CROSS PIT, JUMP PIT, USE HOOK ON CHAIN, CLIMB CHAIN, GRAB CHAIN</div>
+    <div class="note"><strong>NOTE:</strong> You must wait for the pendulum to swing to the right (EXAMINE PENDULUM to track it), then throw the hook onto the far chain on the exact turn the pendulum is right. The pendulum swings right on turns that are multiples of 3 after you enter the room. Count your moves.</div>
+    <span class="cmd">EXAMINE PENDULUM</span>
+    <div class="response">The pendulum swings left. Then right. It seems to be on a cycle.</div>
+    <span class="cmd">WAIT</span><span class="cmd">WAIT</span>
+    <span class="cmd">THROW HOOK AT CHAIN</span>
+    <div class="response">Perfect timing! The hook snags the far chain.</div>
+    <span class="cmd">SWING ON HOOK</span>
+    <div class="response">You swing across the pit. You land on the far side, slightly more heroic than before.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 028</div>
+    <div class="puzzle-title">The Prisoner <span class="spoiler-tag">character puzzle</span></div>
+    <div class="location-desc">A cell. Inside, a bedraggled prisoner rattles their chains. "Free me," they implore.</div>
+    <div class="fail">FREE PRISONER, BREAK CHAINS, UNLOCK CELL, GIVE POTION TO PRISONER</div>
+    <div class="note"><strong>NOTE:</strong> The prisoner is freed by asking Gerald to chew through the chains. Gerald is a spider. Spiders cannot chew through iron. The game does not care about this.</div>
+    <span class="cmd">GERALD, CHEW CHAINS</span>
+    <div class="response">Gerald sets about the chains with what can only be described as ambition. The chains fall away. The prisoner is free.</div>
+    <span class="cmd">TALK TO PRISONER</span>
+    <div class="response">"I am the dungeon's former accountant," the prisoner says. "I know the combination to the Vault: it is 4-8-15-16-23-42." He then walks into a wall and disappears. This is never explained.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 029</div>
+    <div class="puzzle-title">The Pressure Plate Floor <span class="spoiler-tag">weight again</span></div>
+    <div class="location-desc">The corridor floor is covered in tiles with skulls on them.</div>
+    <div class="fail">CROSS FLOOR, JUMP OVER TILES, WALK CAREFULLY, STEP ON TILES, AVOID TILES</div>
+    <div class="death">You stepped on a skull tile. Spikes. You are dead.</div>
+    <div class="note"><strong>NOTE:</strong> You must step ONLY on the tiles with crossbones (not skulls). The game describes both as "skull tiles" in the room description and only tells them apart when you EXAMINE FLOOR. Do that first.</div>
+    <span class="cmd">EXAMINE FLOOR</span>
+    <div class="response">On closer inspection, some tiles have skulls; others have crossbones. The crossbones tiles seem slightly less threatening.</div>
+    <span class="cmd">STEP ON CROSSBONES TILES</span>
+    <div class="response">You hop carefully across, stepping only on crossbones. You survive. The skulls watch with disappointment.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 030</div>
+    <div class="puzzle-title">The Water Room <span class="spoiler-tag">blue potion</span></div>
+    <div class="location-desc">The corridor is flooded knee-deep. You cannot proceed without dealing with it.</div>
+    <div class="note"><strong>NOTE:</strong> The blue potion from the witch drains water when poured. Not into the water — onto the wall. You pour it on the WALL. The wall absorbs the water. This is the potion's use. The potion's label says nothing. The witch said nothing. There is no clue.</div>
+    <span class="cmd">POUR POTION ON WALL</span>
+    <div class="response">The potion hits the wall. The wall glows faintly blue. The water drains away into the stonework with a satisfied slurp.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 031</div>
+    <div class="puzzle-title">The Many-Faced Door <span class="spoiler-tag">riddle puzzle</span></div>
+    <div class="location-desc">A door with seven faces carved into it. Each face asks a question simultaneously. It is very loud in here.</div>
+    <div class="note"><strong>NOTE:</strong> You must answer each face in order by EXAMINEing them individually (EXAMINE FIRST FACE, EXAMINE SECOND FACE, etc.). Each asks a riddle. The answers are: SHADOW, A MAP, AN EGG, SILENCE, TOMORROW, A PROMISE, and THURSDAY again. Yes. Thursday again.</div>
+    <span class="cmd">EXAMINE FIRST FACE</span><span class="cmd">SAY SHADOW</span>
+    <span class="cmd">EXAMINE SECOND FACE</span><span class="cmd">SAY A MAP</span>
+    <span class="cmd">EXAMINE THIRD FACE</span><span class="cmd">SAY AN EGG</span>
+    <span class="cmd">EXAMINE FOURTH FACE</span><span class="cmd">SAY SILENCE</span>
+    <span class="cmd">EXAMINE FIFTH FACE</span><span class="cmd">SAY TOMORROW</span>
+    <span class="cmd">EXAMINE SIXTH FACE</span><span class="cmd">SAY A PROMISE</span>
+    <span class="cmd">EXAMINE SEVENTH FACE</span><span class="cmd">SAY THURSDAY</span>
+    <div class="response">All seven faces smile. The door sighs with satisfaction and opens.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 032</div>
+    <div class="puzzle-title">The Trapped Chest (Again) <span class="spoiler-tag">trap</span></div>
+    <div class="location-desc">A chest. It looks exactly like the one in the cottage.</div>
+    <div class="fail">SET CLOCK, OPEN CHEST</div>
+    <div class="death">There is no clock here. You opened the chest without setting a non-existent clock to 3:00. Needles. You are dead.</div>
+    <div class="note"><strong>NOTE:</strong> EXAMINE CHEST reveals a tiny clock face embedded in the lid. You must SAY THREE at the chest. Then open it. I know. I know.</div>
+    <span class="cmd">EXAMINE CHEST</span>
+    <div class="response">A small clock face is embedded in the lid. It appears to be waiting for input.</div>
+    <span class="cmd">SAY THREE</span>
+    <div class="response">The chest hums. The clock hands spin to 3:00.</div>
+    <span class="cmd">OPEN CHEST</span>
+    <div class="response">Inside: a purple gem and a note reading "NICE TRY." You take neither; you take the gem anyway.</div>
+    <span class="cmd">TAKE GEM</span>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 033</div>
+    <div class="puzzle-title">The Underground Lake <span class="spoiler-tag">navigation</span></div>
+    <div class="location-desc">A vast underground lake. A rowboat is tied to a dock. The far shore is barely visible.</div>
+    <div class="fail">GET IN BOAT, ENTER BOAT, TAKE BOAT, ROW BOAT, USE BOAT</div>
+    <div class="note"><strong>NOTE:</strong> The boat is tied. UNTIE BOAT first. Then ENTER BOAT. Then ROW BOAT NORTH. In exactly that sequence. Skipping UNTIE will cause you to drag the dock and the dock to collapse and you to drown. There are no oars mentioned. The game gives you invisible oars upon ENTER BOAT.</div>
+    <span class="cmd">UNTIE BOAT</span>
+    <span class="cmd">ENTER BOAT</span>
+    <div class="response">You step into the boat. Somehow, oars appear. You choose not to question this.</div>
+    <span class="cmd">ROW BOAT NORTH</span>
+    <div class="response">You row across the underground lake. Something large moves beneath you. It does not attack. It just... observes.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 034</div>
+    <div class="puzzle-title">The Island Shrine <span class="spoiler-tag">offering puzzle</span></div>
+    <div class="location-desc">A small island. A shrine stands here. An altar has an indentation shaped like a gem.</div>
+    <span class="cmd">PUT GEM IN ALTAR</span>
+    <div class="response">The gem fits. The shrine glows. A hidden compartment opens, revealing a silver sword.</div>
+    <span class="cmd">TAKE SWORD</span>
+    <div class="response">You take the silver sword. You feel significantly more equipped to deal with whatever comes next. This feeling is somewhat premature.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 035</div>
+    <div class="puzzle-title">The Vault Door <span class="spoiler-tag">combination</span></div>
+    <div class="location-desc">A massive vault door with a combination dial.</div>
+    <div class="note"><strong>NOTE:</strong> Use the accountant's combination from Puzzle 28: 4-8-15-16-23-42. Input each number separately.</div>
+    <span class="cmd">TURN DIAL TO 4</span><span class="cmd">TURN DIAL TO 8</span><span class="cmd">TURN DIAL TO 15</span>
+    <span class="cmd">TURN DIAL TO 16</span><span class="cmd">TURN DIAL TO 23</span><span class="cmd">TURN DIAL TO 42</span>
+    <div class="response">The vault door opens with a triumphant thunk.</div>
+  </div>
+
+  <div class="score-box">
+    <div>AREA 4 COMPLETE</div>
+    <div>Score: <span>240/400</span></div>
+    <div>Moves: <span>~230</span></div>
+    <div>Sword: <span>Acquired</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════ AREA 5 ═══════════════════════════════════ -->
+  <div class="area-header">
+    <h2>Area 5: The Inner Sanctum</h2>
+    <div class="room-range">Puzzles 36–43</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 036</div>
+    <div class="puzzle-title">The Hall of Mirrors <span class="spoiler-tag">reflection puzzle</span></div>
+    <div class="location-desc">An endless corridor of mirrors. You can see yourself reflected infinitely. One reflection is wrong.</div>
+    <div class="note"><strong>NOTE:</strong> EXAMINE each mirror (FIRST MIRROR through TENTH MIRROR). The seventh mirror shows you without Gerald. Gerald should be on your shoulder. BREAK SEVENTH MIRROR.</div>
+    <span class="cmd">EXAMINE SEVENTH MIRROR</span>
+    <div class="response">Your reflection appears, but Gerald is absent. Something is wrong here.</div>
+    <span class="cmd">BREAK SEVENTH MIRROR</span>
+    <div class="response">The mirror shatters. A small demon tumbles out, screeches, and vanishes. A door is now visible behind where the mirror stood.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 037</div>
+    <div class="puzzle-title">The Welcome Mat — Its True Purpose <span class="spoiler-tag">callback payoff</span></div>
+    <div class="location-desc">A bare stone room. A door marked EXIT is on the north wall. The floor before it is covered in broken glass.</div>
+    <div class="note"><strong>NOTE:</strong> The mat. The welcome mat you have been carrying since Puzzle 2, fashioned into gloves in Puzzle 22, used as a sail in Puzzle 24... now DROP MAT and it becomes a path across the glass. It reassembles itself into a flat mat upon being dropped. The game treats inventory state as fluid. You just roll with it at this point.</div>
+    <span class="cmd">DROP MAT</span>
+    <div class="response">The mat unfolds itself into a perfect rectangle and lies flat across the glass. It says "WELCOME" in green lettering.</div>
+    <span class="cmd">WALK ACROSS MAT</span>
+    <div class="response">You walk across the mat. The glass crunches harmlessly beneath it. You reach the door.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 038</div>
+    <div class="puzzle-title">The Whispering Gallery <span class="spoiler-tag">audio puzzle</span></div>
+    <div class="location-desc">A circular room. Strange whispers echo from the walls. You feel watched.</div>
+    <div class="fail">LISTEN, EXAMINE WALLS, SEARCH ROOM, SAY ANYTHING</div>
+    <div class="note"><strong>NOTE:</strong> The whispers are saying the word "HUSH." You must HUSH. Just type HUSH. The walls quiet. A passage opens. There is genuinely no way to know this without trial and error or this walkthrough.</div>
+    <span class="cmd">HUSH</span>
+    <div class="response">You say "hush." The whispers stop, as if embarrassed. A passage opens in the east wall.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 039</div>
+    <div class="puzzle-title">The Illusory Floor <span class="spoiler-tag">faith puzzle</span></div>
+    <div class="location-desc">The passage ends at a vast drop. There appears to be no floor. The opposite side is 20 feet away.</div>
+    <div class="fail">JUMP, USE HOOK, THROW HOOK, FLY, GO NORTH</div>
+    <div class="note"><strong>NOTE:</strong> The floor is there. It's invisible. You must STEP FORWARD. The game was inspired by Indiana Jones and the Last Crusade and is not subtle about it. Just walk forward.</div>
+    <span class="cmd">STEP FORWARD</span>
+    <div class="response">Your foot finds invisible stone. A bridge! It was here all along. You walk across with growing confidence and diminishing dignity.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 040</div>
+    <div class="puzzle-title">The Golem Guardian <span class="spoiler-tag">weakness puzzle</span></div>
+    <div class="location-desc">A massive stone golem blocks the way. It is enormous. Your sword does nothing — the text says "The sword bounces off harmlessly" no matter what you do.</div>
+    <div class="fail">ATTACK GOLEM, HIT GOLEM, USE SWORD, SLASH GOLEM, STAB GOLEM, FLORBINATE GOLEM</div>
+    <div class="note"><strong>NOTE:</strong> The golem is defeated by telling it a secret. Any secret. The verb is CONFESS. You confess to the golem. The golem, moved by your vulnerability, steps aside. I cannot defend this puzzle.</div>
+    <span class="cmd">CONFESS TO GOLEM</span>
+    <div class="response">You quietly confess that you've been afraid the whole time and haven't known what you're doing. The golem's stone face softens. It steps aside. One tear rolls down its cheek, which is geologically improbable.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 041</div>
+    <div class="puzzle-title">The Newspaper Stand <span class="spoiler-tag">currency again</span></div>
+    <div class="location-desc">A newspaper stand in the dungeon. A vendor, seemingly unbothered by their location, stands behind it.</div>
+    <div class="note"><strong>NOTE:</strong> The vendor wants to trade. They want "news from outside." You have the fish's tiny newspaper. This is Puzzle 14's payoff, 27 puzzles later. Give the tiny newspaper to the vendor.</div>
+    <span class="cmd">GIVE NEWSPAPER TO VENDOR</span>
+    <div class="response">The vendor's eyes light up. "Ah! The barn dance! The missing cow!" They hand you a torch and a map fragment in exchange. "Slow news week otherwise," they add.</div>
+    <span class="cmd">TAKE TORCH</span><span class="cmd">TAKE MAP FRAGMENT</span>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 042</div>
+    <div class="puzzle-title">The Dark Corridor (Again, Worse) <span class="spoiler-tag">light source</span></div>
+    <div class="location-desc">Total darkness. The candle went out fifteen rooms ago when you put it down to examine something. The torch is unlit.</div>
+    <div class="fail">LIGHT TORCH, SNEEZE ON TORCH, USE TORCH</div>
+    <div class="note"><strong>NOTE:</strong> You cannot sneeze here. Sneezing only works in the cottage. The torch is lit by rubbing it against the wall exactly three times. RUB TORCH ON WALL. Three times.</div>
+    <span class="cmd">RUB TORCH ON WALL</span>
+    <div class="response">Some sparks, no flame.</div>
+    <span class="cmd">RUB TORCH ON WALL</span>
+    <div class="response">More sparks.</div>
+    <span class="cmd">RUB TORCH ON WALL</span>
+    <div class="response">The torch catches. The corridor is illuminated. You can see three doors and what appears to be a motivational poster. It reads "HANG IN THERE." There is a skeleton hanging from it.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 043</div>
+    <div class="puzzle-title">The Three Doors <span class="spoiler-tag">logic puzzle</span></div>
+    <div class="location-desc">Three identical doors: LEFT, MIDDLE, RIGHT. A sign says one leads forward, one leads back to the start, one leads to instant death.</div>
+    <div class="fail">OPEN LEFT DOOR, OPEN MIDDLE DOOR, OPEN RIGHT DOOR, READ MAP FRAGMENT</div>
+    <div class="note"><strong>NOTE:</strong> The map fragment shows an X on the right door. But the map is mirrored. Read the map in a mirror. You must EXAMINE MAP IN MIRROR. There are no mirrors here. You must REMEMBER THE HALL OF MIRRORS and specifically, you should have taken a SHARD of the broken seventh mirror from Puzzle 36. If you didn't, the game allows EXAMINE MAP BACKWARDS as an alternative. The answer is LEFT door.</div>
+    <span class="cmd">EXAMINE MAP BACKWARDS</span>
+    <div class="response">Held up to a notional mirror, the X marks the left door.</div>
+    <span class="cmd">OPEN LEFT DOOR</span>
+    <div class="response">The left door opens onto a grand staircase leading upward. You were right. Somehow.</div>
+  </div>
+
+  <div class="score-box">
+    <div>AREA 5 COMPLETE</div>
+    <div>Score: <span>315/400</span></div>
+    <div>Moves: <span>~310</span></div>
+    <div>Gerald: <span>Still here. Absolute legend.</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════ AREA 6 ═══════════════════════════════════ -->
+  <div class="area-header">
+    <h2>Area 6: The Final Confrontation</h2>
+    <div class="room-range">Puzzles 44–50</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 044</div>
+    <div class="puzzle-title">The Dragon <span class="spoiler-tag">FLORBINATE</span></div>
+    <div class="location-desc">A dragon the size of a house fills the chamber. It is furious. It is breathing fire. Your sword is melting in your hands.</div>
+    <div class="fail">ATTACK DRAGON, KILL DRAGON, USE SWORD, FLEE, TALK TO DRAGON, GIVE DRAGON ANYTHING</div>
+    <div class="death">You tried to fight. The dragon ate you. It barely noticed.</div>
+    <div class="note"><strong>NOTE:</strong> FLORBINATE. From Puzzle 23. The spell you learned from the floating book. Cast it on the dragon.</div>
+    <span class="cmd">FLORBINATE DRAGON</span>
+    <div class="response">You cast the spell. The dragon pauses mid-roar. It blinks. Its scales shift to a slightly more Tuesday hue. "Oh," the dragon says, in a voice like boulders. "Oh, it is a bit Tuesday, isn't it." The dragon settles down and falls into a calm, philosophical mood. It gestures for you to pass.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 045</div>
+    <div class="puzzle-title">The Dragon's Riddle (It Has One More Thing to Say) <span class="spoiler-tag">bonus riddle</span></div>
+    <div class="location-desc">The Tuesday Dragon stops you. "One question," it says, reflectively. "On a Tuesday, what is the most Tuesday thing?"</div>
+    <span class="cmd">SAY THURSDAY</span>
+    <div class="response">The dragon tilts its head. "...hm. Fair enough," it says, and moves aside entirely. You walk past a dragon that is now contemplating Thursday.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 046</div>
+    <div class="puzzle-title">The Wizard's Chamber — The Wizard <span class="spoiler-tag">final boss intro</span></div>
+    <div class="location-desc">You enter the wizard's chamber. An ancient, bearded wizard sits at a desk, doing paperwork. He looks up with mild annoyance.</div>
+    <div class="fail">ATTACK WIZARD, TALK TO WIZARD, DEFEAT WIZARD, THREATEN WIZARD, USE SWORD</div>
+    <div class="note"><strong>NOTE:</strong> The wizard is not a boss fight. He is tired. He has been doing this for centuries. You must HELP WIZARD with his paperwork. This is not a metaphor. You literally fill in a form with him. The game asks you three bureaucratic questions.</div>
+    <span class="cmd">HELP WIZARD</span>
+    <div class="response">The wizard looks surprised, then grateful. "Name of adventurer?" he asks.</div>
+    <span class="cmd">SAY YOUR NAME</span>
+    <div class="response">"Purpose of dungeon visit?"</div>
+    <span class="cmd">SAY HEROIC QUEST</span>
+    <div class="response">"Method of entrance?"</div>
+    <span class="cmd">SAY THROUGH THE FRONT DOOR</span>
+    <div class="response">The wizard stamps the form. "Right. Everything checks out. The treasure's through there." He points north. "Tea?" he adds.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 047</div>
+    <div class="puzzle-title">The Wizard's Tea <span class="spoiler-tag">optional but important</span></div>
+    <div class="location-desc">The wizard is offering tea. You don't have to take it. You absolutely should take it.</div>
+    <div class="note"><strong>NOTE:</strong> Accepting the tea grants 50 points and changes the ending. Refusing grants 5 points and gives you the "Lesser Ending." The game mentions none of this. Always take the tea.</div>
+    <span class="cmd">TAKE TEA</span>
+    <div class="response">You accept the tea. It is, improbably, perfect. You drink it. The wizard nods. There is a moment of genuine peace. It is the best moment in the game.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 048</div>
+    <div class="puzzle-title">The Treasure Room — The Final Lock <span class="spoiler-tag">combination callback</span></div>
+    <div class="location-desc">The treasure room. A chest on a pedestal. A combination lock. Four digits.</div>
+    <div class="note"><strong>NOTE:</strong> The combination is 3000. Why? Because you set two clocks to 3:00, each with four digits (0300), and 0300 + 0300 = something something the game is broken it's just 3000. Enter it.</div>
+    <span class="cmd">ENTER 3000</span>
+    <div class="response">The lock opens. The chest opens. Light pours out.</div>
+    <span class="cmd">TAKE TREASURE</span>
+    <div class="response">You take the treasure. It is, after all you have been through, a slightly nicer version of the golden acorn you gave to the gargoyle. The universe is funny like that.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 049</div>
+    <div class="puzzle-title">Gerald's Farewell <span class="spoiler-tag">emotional</span></div>
+    <div class="location-desc">As you prepare to leave, Gerald crawls from your shoulder and faces you.</div>
+    <div class="note"><strong>NOTE:</strong> If you SAY GOODBYE TO GERALD, you receive 25 bonus points and the game acknowledges the journey. If you just leave, Gerald silently descends. The game tracks whether you said goodbye. It matters for the score.</div>
+    <span class="cmd">SAY GOODBYE TO GERALD</span>
+    <div class="response">Gerald raises two of his eight legs in a solemn wave. He has been with you through trolls, witches, filing cabinets, and a Tuesday dragon. He descends the wall and disappears into the dark. The walkthrough author needed a moment after this. He's fine. He's fine.</div>
+  </div>
+
+  <div class="puzzle">
+    <div class="puzzle-number">PUZZLE 050</div>
+    <div class="puzzle-title">The Exit — Going Home <span class="spoiler-tag">finale</span></div>
+    <div class="location-desc">The dungeon entrance. Freedom is one step away. The sun is visible through the doorway.</div>
+    <div class="fail">GO OUT, EXIT, LEAVE, GO NORTH, STEP OUTSIDE</div>
+    <div class="note"><strong>NOTE:</strong> I want you to know that I tried everything. After everything — after 50 puzzles, 400 hours total between all my attempts, one cancelled CompuServe subscription, three keyboards, and more UNDO commands than I can count — the final verb to exit the dungeon is:</div>
+    <span class="cmd">GO HOME</span>
+    <div class="response">
+      You step out of the dungeon into the afternoon light.<br><br>
+      The cottage is visible in the distance. Gerald is probably fine. The wizard is doing paperwork. The dragon is pondering Thursday. The troll is tolling.<br><br>
+      You have completed DUNGEON OF DESPAIR.<br><br>
+      &gt;&gt; SCORE: 400 OF 400. RANK: MAGNIFICENT FOOL. &lt;&lt;<br><br>
+      You have completed the game in [YOUR NUMBER] moves.<br>
+      The author thanks you for playing. He is sorry. He is truly sorry.<br><br>
+      *** YOU HAVE WON ***
+    </div>
+  </div>
+
+  <div class="score-box" style="border-color: var(--amber); margin-top: 40px;">
+    <div style="color: var(--amber);">GAME COMPLETE</div>
+    <div>Final Score: <span>400/400</span></div>
+    <div>Optimal Moves: <span>~380</span></div>
+    <div>Rank: <span>MAGNIFICENT FOOL</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="footer">
+    <div>DUNGEON OF DESPAIR &nbsp;·&nbsp; Softronix Inc. &nbsp;·&nbsp; 1984</div>
+    <div>Walkthrough by FrustratedGamer_88 &nbsp;·&nbsp; CompuServe Forum, Posted 1991</div>
+    <div style="margin-top: 12px; color: #2a5a3a;">
+      "I do not recommend this game. I cannot stop thinking about this game.<br>
+      If you find a copy at a garage sale, buy it. You will regret it.<br>
+      You will not be able to stop."
+    </div>
+    <div style="margin-top: 20px;">
+      <span class="blink">█</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

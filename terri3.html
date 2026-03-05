@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walkthrough: The Crypt of the Verb Parser</title>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --text: #c8c8c8;
+    --terminal-bg: #0a0a0a;
+    --terminal-text: #33ff33;
+    --terminal-prompt: #ffcc00;
+    --improvement-bg: #0d2b3e;
+    --improvement-border: #1a8a8a;
+    --improvement-text: #7fdbdb;
+    --heading: #e0e0e0;
+    --link: #5fafcf;
+    --link-hover: #8fd4ef;
+    --label-classic: #c07020;
+    --label-inventive: #8060c0;
+    --top-btn: #1a8a8a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.6;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+  h1 {
+    color: var(--heading);
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.04em;
+  }
+  h1 small {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: normal;
+    color: #888;
+    letter-spacing: 0;
+    margin-top: 0.2rem;
+  }
+  .intro {
+    margin: 1.5rem 0 2rem;
+    color: #aaa;
+    font-style: italic;
+  }
+  .toc {
+    margin-bottom: 3rem;
+    padding: 1rem 1.5rem;
+    background: #222;
+    border-radius: 6px;
+  }
+  .toc h2 {
+    font-size: 1.1rem;
+    color: var(--heading);
+    margin-bottom: 0.75rem;
+  }
+  .toc ol {
+    columns: 2;
+    column-gap: 2rem;
+    padding-left: 1.8rem;
+  }
+  .toc li {
+    margin-bottom: 0.2rem;
+    font-size: 0.85rem;
+    break-inside: avoid;
+  }
+  .toc a {
+    color: var(--link);
+    text-decoration: none;
+  }
+  .toc a:hover { color: var(--link-hover); text-decoration: underline; }
+
+  .puzzle {
+    margin-bottom: 3rem;
+    scroll-margin-top: 1rem;
+  }
+  .puzzle h2 {
+    font-size: 1.25rem;
+    color: var(--heading);
+    margin-bottom: 0.15rem;
+  }
+  .puzzle h2 .badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: normal;
+    padding: 0.1em 0.5em;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 0.5em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .badge.classic { background: var(--label-classic); color: #fff; }
+  .badge.inventive { background: var(--label-inventive); color: #fff; }
+
+  .transcript {
+    background: var(--terminal-bg);
+    color: var(--terminal-text);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.88rem;
+    padding: 1rem 1.25rem;
+    border-radius: 5px;
+    margin: 0.75rem 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    border: 1px solid #222;
+  }
+  .transcript .prompt {
+    color: var(--terminal-prompt);
+  }
+
+  .improvement {
+    background: var(--improvement-bg);
+    border-left: 4px solid var(--improvement-border);
+    color: var(--improvement-text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: 0 5px 5px 0;
+    margin-top: 0.5rem;
+    line-height: 1.55;
+  }
+  .improvement strong {
+    color: #a0efef;
+  }
+
+  .back-to-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--top-btn);
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 0.85rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: sans-serif;
+    opacity: 0.85;
+  }
+  .back-to-top:hover { opacity: 1; }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #333;
+    color: #666;
+    font-size: 0.8rem;
+    text-align: center;
+    font-style: italic;
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 1rem; }
+    .toc ol { columns: 1; }
+    h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<a id="top"></a>
+
+<h1>The Crypt of the Verb Parser
+  <small>A Complete Walkthrough &mdash; with Suggestions for Improvement</small>
+</h1>
+
+<div class="intro">
+  <p><em>The Crypt of the Verb Parser</em> was released in 1987 by Abyssal Software Ltd. You play as an unnamed adventurer who descends into a crypt beneath an abandoned library. The crypt contains treasure. You will not find the treasure. You will find frustration, arbitrary death, and a parser that actively resents your participation. This walkthrough documents the only known path through all fifty of its puzzles. It was not written with joy.</p>
+</div>
+
+<nav class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#p1">The Rusty Gate &mdash; Guess the Verb</a></li>
+    <li><a href="#p2">The Waiting Room &mdash; Wait 100 Turns</a></li>
+    <li><a href="#p3">The Identical Corridors &mdash; Maze</a></li>
+    <li><a href="#p4">The Inscription Hall &mdash; Anagram Solution</a></li>
+    <li><a href="#p5">The Loose Flagstone &mdash; Instant Death</a></li>
+    <li><a href="#p6">The Brass Lever &mdash; ALL CAPS Only</a></li>
+    <li><a href="#p7">The Long Descent &mdash; Hunger Timer</a></li>
+    <li><a href="#p8">The Acoustic Chamber &mdash; Sing a Lyric</a></li>
+    <li><a href="#p9">The Sealed Tomb &mdash; Unwinnable State</a></li>
+    <li><a href="#p10">The Shifting Dagger &mdash; Object Name Changes</a></li>
+    <li><a href="#p11">The Guttering Torch &mdash; Light Runs Out</a></li>
+    <li><a href="#p12">The Dizzy Gallery &mdash; Random Teleportation</a></li>
+    <li><a href="#p13">The Alchemist's Puzzle &mdash; Moon Logic</a></li>
+    <li><a href="#p14">The Sulking Guardian &mdash; Exact Insult</a></li>
+    <li><a href="#p15">The Trophy Shelf &mdash; Red Herrings</a></li>
+    <li><a href="#p16">The Twin Keys &mdash; Parser Picks Wrong One</a></li>
+    <li><a href="#p17">The Narrow Ledge &mdash; Inventory Limit</a></li>
+    <li><a href="#p18">The Stubborn Mural &mdash; Examine Three Times</a></li>
+    <li><a href="#p19">The Whispering Skull &mdash; Misleading Hint</a></li>
+    <li><a href="#p20">The False Error &mdash; Fake Error Message</a></li>
+    <li><a href="#p21">The Flooded Vault &mdash; Need Earlier Item</a></li>
+    <li><a href="#p22">The Humble Door &mdash; Drop Everything</a></li>
+    <li><a href="#p23">The Zodiac Lock &mdash; Outside Knowledge</a></li>
+    <li><a href="#p24">The Appendix Reference &mdash; Nonexistent Manual</a></li>
+    <li><a href="#p25">The Bone Collection &mdash; Disambiguation</a></li>
+    <li><a href="#p26">The Copyright Clue &mdash; Solution in Copyright</a></li>
+    <li><a href="#p27">The Crooked Compass &mdash; Arbitrary Directions</a></li>
+    <li><a href="#p28">The Calendar Gate &mdash; Day-of-Week Puzzle</a></li>
+    <li><a href="#p29">The Chain of Doors &mdash; Locked-Door Chain</a></li>
+    <li><a href="#p30">The Nested Boxes &mdash; Containers 3 Deep</a></li>
+    <li><a href="#p31">The Fickle Bridge &mdash; Random Success</a></li>
+    <li><a href="#p32">The Acid and the Vial &mdash; Order-Sensitive USE</a></li>
+    <li><a href="#p33">The Resetting Tiles &mdash; Puzzle Resets on Exit</a></li>
+    <li><a href="#p34">The Chatty Pillar &mdash; Talk to an Object</a></li>
+    <li><a href="#p35">The Crystal Sequence &mdash; Read Designer's Mind</a></li>
+    <li><a href="#p36">The Spinning Dial &mdash; Random Combination</a></li>
+    <li><a href="#p37">The Forgotten Helmet &mdash; Extreme Backtracking</a></li>
+    <li><a href="#p38">The Self-Referential Clue &mdash; Inventory Description</a></li>
+    <li><a href="#p39">The Contradictory Lever &mdash; Breaks Own Logic</a></li>
+    <li><a href="#p40">The Copper Plate &mdash; Refer by Material</a></li>
+    <li><a href="#p41">The Hidden Rope &mdash; Item as Scenery</a></li>
+    <li><a href="#p42">The Pop Culture Gate &mdash; 1980s Trivia</a></li>
+    <li><a href="#p43">The Pamphlet Solution &mdash; Read the Docs</a></li>
+    <li><a href="#p44">The Silent Sentinel &mdash; NPC Blocks Path</a></li>
+    <li><a href="#p45">The Pitch Black Pit &mdash; No Lamp Available</a></li>
+    <li><a href="#p46">The Patience Altar &mdash; Do Nothing</a></li>
+    <li><a href="#p47">The Spike Room &mdash; Die to Learn</a></li>
+    <li><a href="#p48">The One-Way Gallery &mdash; Unrevisitable Room</a></li>
+    <li><a href="#p49">The Sand Timer &mdash; Hidden Time Limit</a></li>
+    <li><a href="#p50">The Final Word &mdash; XYZZY</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 1                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p1">
+  <h2>#1 &mdash; The Rusty Gate <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You are standing before a rusty iron gate. It is closed. A path leads south.
+
+<span class="prompt">&gt; OPEN GATE</span>
+The gate does not budge.
+
+<span class="prompt">&gt; PUSH GATE</span>
+I don't understand "push."
+
+<span class="prompt">&gt; PULL GATE</span>
+I don't understand "pull."
+
+<span class="prompt">&gt; KICK GATE</span>
+I don't understand "kick."
+
+<span class="prompt">&gt; MOVE GATE</span>
+I don't understand "move."
+
+<span class="prompt">&gt; MANIPULATE GATE</span>
+The gate swings open with a grinding screech. Beyond it, stairs descend into darkness.</div>
+  <div class="improvement"><strong>Design failure:</strong> Only one obscure verb is accepted when many common synonyms should work. <strong>Fix:</strong> Accept OPEN, PUSH, PULL, FORCE, MOVE, KICK, and SHOVE as valid commands. If the gate requires a specific action (e.g., lifting a latch), describe the latch so the player knows what to interact with. The parser should meet the player halfway, not hold the game hostage over vocabulary.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 2                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p2">
+  <h2>#2 &mdash; The Waiting Room <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You are in a small stone chamber. There is a door to the north, but it appears to be sealed by some mechanism. A plaque on the wall reads: "Patience is the key."
+
+<span class="prompt">&gt; WAIT</span>
+Time passes.
+
+<span class="prompt">&gt; WAIT</span>
+Time passes.
+
+[... 97 more times ...]
+
+<span class="prompt">&gt; WAIT</span>
+Time passes. There is a faint click. The door to the north swings open.
+
+(The solution is to type WAIT exactly 100 times. There is no counter, no progress indicator, and no feedback until turn 100.)</div>
+  <div class="improvement"><strong>Design failure:</strong> Requiring 100 identical commands with zero feedback is not a puzzle; it is a typing exercise. <strong>Fix:</strong> If patience is the theme, give incremental feedback &mdash; dust settling, sounds growing louder, light changing &mdash; every 5&ndash;10 turns, so the player knows they're on the right track. Better yet, reduce it to 3&ndash;5 waits with escalating atmospheric descriptions. The puzzle should reward attentiveness, not endurance.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 3                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p3">
+  <h2>#3 &mdash; The Identical Corridors <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You are in a maze of twisty little passages, all alike.
+
+<span class="prompt">&gt; NORTH</span>
+You are in a maze of twisty little passages, all alike.
+
+<span class="prompt">&gt; EAST</span>
+You are in a maze of twisty little passages, all alike.
+
+<span class="prompt">&gt; SOUTH</span>
+You are in a maze of twisty little passages, all alike.
+
+<span class="prompt">&gt; DROP COIN</span>
+Dropped.
+
+<span class="prompt">&gt; NORTH</span>
+You are in a maze of twisty little passages, all alike.
+
+<span class="prompt">&gt; SOUTH</span>
+You are in a maze of twisty little passages, all alike. You can see a coin here.
+
+(The maze is 14 rooms. The exits are not consistent &mdash; going north then south does not return you to the same room. The intended solution is to drop a different inventory item in each room to map it. You have 11 items.)</div>
+  <div class="improvement"><strong>Design failure:</strong> Featureless maze rooms with inconsistent navigation force tedious mapping via item-dropping. <strong>Fix:</strong> Give each room a subtle distinguishing feature &mdash; different wall textures, sounds, smells. Make exits logically consistent (north/south reciprocal). If a maze must exist, make it small (4&ndash;6 rooms) and embed a solvable spatial puzzle within it rather than relying on brute-force cartography.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 4                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p4">
+  <h2>#4 &mdash; The Inscription Hall <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You are in a vaulted hall. An inscription on the arch reads:
+"BENEATH THE STOLEN LARCH POEM"
+
+There is a locked chest here. It has a combination dial with letters.
+
+<span class="prompt">&gt; EXAMINE INSCRIPTION</span>
+"BENEATH THE STOLEN LARCH POEM." The letters seem oddly spaced.
+
+<span class="prompt">&gt; SET DIAL TO LARCH</span>
+Nothing happens.
+
+<span class="prompt">&gt; SET DIAL TO POEM</span>
+Nothing happens.
+
+<span class="prompt">&gt; SET DIAL TO STOLEN</span>
+Nothing happens.
+
+(The solution is that "STOLEN LARCH POEM" is an anagram of "THEELPROM CLOHANS" &mdash; wait, no. It's an anagram of "OPEN THE ALMSORCH." No. Actually &mdash; the designer's notes indicate it anagrams to "MOTHER PELSON CHA." The actual answer accepted by the game is CHARLESTON POEM. This does not anagram correctly either.)
+
+<span class="prompt">&gt; SET DIAL TO CHARLESTON</span>
+The chest springs open!</div>
+  <div class="improvement"><strong>Design failure:</strong> The anagram doesn't actually resolve to the answer the game accepts. The puzzle is mathematically broken. <strong>Fix:</strong> If you must use an anagram, verify it works. "BENEATH THE STOLEN LARCH POEM" has too many letters to anagram cleanly. Use a shorter, testable phrase. Provide an in-game hint (e.g., "Rearrange what you see"). And always &mdash; always &mdash; verify the anagram actually functions before shipping the game.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 5                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p5">
+  <h2>#5 &mdash; The Loose Flagstone <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You are in a narrow corridor. The floor is made of ancient flagstones.
+
+<span class="prompt">&gt; WALK NORTH</span>
+You step on a loose flagstone. It gives way. You plummet into a spike pit.
+
+*** You have died. ***
+
+(There was no indication that a flagstone was loose. There is no way to detect it. You must simply know not to go north, and instead go northeast &mdash; a direction not listed in the room description.)</div>
+  <div class="improvement"><strong>Design failure:</strong> Instant death with no warning and no way to detect or prevent it. The safe exit isn't even mentioned. <strong>Fix:</strong> Describe the loose flagstone ("One stone near the north wall seems slightly uneven"). Let the player EXAMINE FLOOR to discover the trap. Mention all valid exits. If death occurs, it should be the consequence of ignoring clear warning signs, not of walking in a direction the room description suggests is safe.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 6                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p6">
+  <h2>#6 &mdash; The Brass Lever <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You are in a small mechanical room. A brass lever protrudes from the wall.
+
+<span class="prompt">&gt; pull lever</span>
+Nothing happens.
+
+<span class="prompt">&gt; Pull Lever</span>
+Nothing happens.
+
+<span class="prompt">&gt; PULL lever</span>
+Nothing happens.
+
+<span class="prompt">&gt; PULL LEVER</span>
+You pull the lever with great force! Gears grind within the walls. A panel slides open to the east.
+
+(The parser requires the entire command in uppercase. Mixed case and lowercase are silently ignored. No error message. Just "Nothing happens.")</div>
+  <div class="improvement"><strong>Design failure:</strong> Case-sensitive parsing with no feedback. The player's command is correct; only its capitalization is rejected. <strong>Fix:</strong> Never make a text parser case-sensitive. Convert all input to a canonical form before parsing. If for some bizarre thematic reason you want to require shouting, tell the player: "The lever seems to respond to forceful commands" and accept PULL LEVER, YANK LEVER, and FORCE LEVER in any case.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 7                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p7">
+  <h2>#7 &mdash; The Long Descent <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You are at the top of a long spiral staircase. Your stomach growls.
+
+<span class="prompt">&gt; DOWN</span>
+You descend several steps. You are hungry.
+
+<span class="prompt">&gt; DOWN</span>
+You descend further. You are very hungry.
+
+<span class="prompt">&gt; DOWN</span>
+You descend further. You are starving!
+
+<span class="prompt">&gt; DOWN</span>
+You collapse from hunger on the stairs.
+
+*** You have died. ***
+
+(The staircase takes 12 turns to descend. The hunger timer kills you in 4 turns. The only food in the game is a sandwich found 6 rooms ago. If you ate it then &mdash; as the game told you to, saying "You look hungry" &mdash; you are now in an unwinnable state.)</div>
+  <div class="improvement"><strong>Design failure:</strong> A hunger timer so aggressive it kills the player mid-staircase, combined with a limited food supply and a misleading prompt to eat it earlier. <strong>Fix:</strong> Remove the hunger timer entirely &mdash; it adds nothing to the experience. If resource management is desired, make food renewable or the timer generous enough that normal exploration never triggers it. Never let the game encourage the player to use a resource that will be critically needed later.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 8                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p8">
+  <h2>#8 &mdash; The Acoustic Chamber <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You are in a domed chamber with extraordinary acoustics. Carved musical notes adorn the walls. A heavy stone door blocks the exit.
+
+<span class="prompt">&gt; EXAMINE NOTES</span>
+They appear to be a melody of some kind. You don't recognize it.
+
+<span class="prompt">&gt; SING</span>
+You sing. The chamber echoes. Nothing happens.
+
+<span class="prompt">&gt; SING SONG</span>
+What song?
+
+<span class="prompt">&gt; SING MELODY</span>
+I don't know that song.
+
+<span class="prompt">&gt; SING NOTES</span>
+I don't know that song.
+
+(The solution is to type: SING "TAKE ON ME" &mdash; the 1985 a-ha single. The carved notes are supposedly its opening riff. No further hint is provided.)
+
+<span class="prompt">&gt; SING "TAKE ON ME"</span>
+Your voice fills the chamber. The stones resonate. The door slowly rises!</div>
+  <div class="improvement"><strong>Design failure:</strong> Requiring the player to identify a specific pop song from a vague wall carving, then type its exact title in quotes. <strong>Fix:</strong> If music is the puzzle mechanic, provide solvable clues &mdash; a sequence of notes (DO RE MI...) that the player can SING back, or a riddle whose answer is the song title. Alternatively, let the player SING anything and have the chamber respond to pitch or rhythm, turning it into an actual interactive puzzle rather than a trivia question.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 9                                                      -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p9">
+  <h2>#9 &mdash; The Sealed Tomb <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You are before a massive sealed tomb. The seal is stamped with a serpent. To open it, you need the Serpent Rod.
+
+<span class="prompt">&gt; INVENTORY</span>
+You are carrying: a torch, a key, a coin, a flask.
+
+(The Serpent Rod was in the Overgrown Garden, 30 rooms and 2 one-way passages ago. There is no way to return. If you did not pick it up then, the game is unwinnable. The Serpent Rod was described as "an old stick" with no indication of importance. You cannot complete the game.)
+
+<span class="prompt">&gt; QUIT</span>
+Thank you for playing The Crypt of the Verb Parser!</div>
+  <div class="improvement"><strong>Design failure:</strong> The game becomes unwinnable due to a missed item that was poorly described, behind one-way passages with no return. The player receives no indication until 30 rooms later. <strong>Fix:</strong> Never create an unwinnable state silently. If an item is critical, make it obvious or unmissable. If one-way travel exists, place no required items before it. At minimum, warn the player: "You feel you may have forgotten something important." Better: don't use one-way passages at all.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 10                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p10">
+  <h2>#10 &mdash; The Shifting Dagger <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Armory. A ceremonial dagger rests on a rack.
+
+<span class="prompt">&gt; TAKE DAGGER</span>
+Taken.
+
+<span class="prompt">&gt; INVENTORY</span>
+You are carrying: a ceremonial blade, a torch, a key.
+
+<span class="prompt">&gt; USE DAGGER</span>
+You don't have a dagger.
+
+<span class="prompt">&gt; USE BLADE</span>
+You don't see a blade here.
+
+<span class="prompt">&gt; USE CEREMONIAL BLADE</span>
+What do you want to use the ceremonial blade with?
+
+(The object was called "dagger" in the room. After taking it, the game renamed it to "ceremonial blade" in your inventory. The parser no longer recognizes "dagger." You must use the new name. This happens with four other items in the game.)</div>
+  <div class="improvement"><strong>Design failure:</strong> Renaming objects after pickup breaks the player's mental model and makes the parser reject previously valid commands. <strong>Fix:</strong> Keep object names consistent, or at minimum, register all former names as synonyms. If an item's true name is revealed upon examination, accept both names forever. The parser should track aliases, not demand the player do so.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 11                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p11">
+  <h2>#11 &mdash; The Guttering Torch <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Dark Passage. Your torch flickers weakly.
+
+<span class="prompt">&gt; EXAMINE TORCH</span>
+The torch is almost spent. It has perhaps a few minutes of light left.
+
+<span class="prompt">&gt; NORTH</span>
+Darker Passage. Your torch sputters.
+
+<span class="prompt">&gt; NORTH</span>
+Darkest Passage. Your torch goes out!
+
+It is pitch dark. You are likely to be eaten by a grue.
+
+<span class="prompt">&gt; NORTH</span>
+You stumble in the darkness and fall into a chasm.
+
+*** You have died. ***
+
+(The torch lasts 40 turns total. The dark area requires at least 25 turns to traverse. If you spent any turns examining things earlier &mdash; as the game repeatedly encouraged you to do &mdash; you no longer have enough light. There is no replacement light source.)</div>
+  <div class="improvement"><strong>Design failure:</strong> A non-renewable light source with a timer too short for the required exploration area, punishing the player for engaging with the game's own EXAMINE prompts. <strong>Fix:</strong> Either make the light source long-lasting enough for generous exploration, provide a replacement light in the dark area, or pause the timer during non-movement actions like EXAMINE. The player should never be punished for interacting with the game world.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 12                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p12">
+  <h2>#12 &mdash; The Dizzy Gallery <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You are in a gallery lined with distorted mirrors. Exits lead in all directions.
+
+<span class="prompt">&gt; NORTH</span>
+The mirrors flash. You are in a gallery lined with distorted mirrors. Exits lead in all directions.
+
+<span class="prompt">&gt; NORTH</span>
+The mirrors flash. You are in the Damp Cellar.
+
+<span class="prompt">&gt; SOUTH</span>
+You are in a gallery lined with distorted mirrors. Exits lead in all directions.
+
+<span class="prompt">&gt; NORTH</span>
+The mirrors flash. You are in the Armory.
+
+(Every direction teleports you to a random room. Except: if you walk backward through each room &mdash; entering a room from the north and leaving to the south &mdash; movement is consistent. This is never hinted at.)
+
+<span class="prompt">&gt; SOUTH</span>
+<span class="prompt">&gt; SOUTH</span>
+<span class="prompt">&gt; SOUTH</span>
+You emerge into the Crystal Antechamber. The mirrors are behind you.</div>
+  <div class="improvement"><strong>Design failure:</strong> A teleportation room with a hidden, counter-intuitive rule (walk backward) and no clue. Players will assume the room is random and either brute-force it or quit. <strong>Fix:</strong> Hint at the mechanic through the mirrors themselves &mdash; "Your reflection walks the opposite way" or "Everything here seems reversed." Give the player a reason to try backward movement. A puzzle with a hidden rule is only fun if the clues make the discovery feel earned.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 13                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p13">
+  <h2>#13 &mdash; The Alchemist's Puzzle <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Alchemist's Workshop. On the bench: a mortar, a vial of mercury, a dried rose, and a lump of calciumite. A locked cabinet stands against the wall.
+
+<span class="prompt">&gt; USE MERCURY ON CALCIUM</span>
+That achieves nothing.
+
+<span class="prompt">&gt; USE ROSE ON MORTAR</span>
+You grind the rose into dust. You now have rose dust.
+
+<span class="prompt">&gt; USE MERCURY ON ROSE DUST</span>
+That achieves nothing.
+
+<span class="prompt">&gt; USE CALCIUM ON MORTAR</span>
+You grind the calcium into powder. You now have calcium powder.
+
+<span class="prompt">&gt; MIX POWDER AND DUST</span>
+Nothing happens.
+
+<span class="prompt">&gt; MIX POWDER AND MERCURY</span>
+Nothing happens.
+
+(The solution: PUT ROSE DUST IN MERCURY. DRINK MERCURY. You hallucinate a four-digit code. Enter the code on the cabinet. The code is 7734. This is because the designer's daughter's name is "hELL" upside down on a calculator. None of this is clued.)
+
+<span class="prompt">&gt; PUT ROSE DUST IN MERCURY</span>
+The mercury turns pink.
+
+<span class="prompt">&gt; DRINK MERCURY</span>
+Against all judgment, you drink the pink mercury. The room spins. You see glowing numbers: 7 7 3 4.
+
+<span class="prompt">&gt; ENTER 7734</span>
+The cabinet clicks open!</div>
+  <div class="improvement"><strong>Design failure:</strong> "Moon logic" &mdash; the solution requires illogical actions (drinking mercury), and the answer references the designer's personal life. <strong>Fix:</strong> Provide in-game reasoning. An alchemist's journal could describe the recipe. The code could be hinted by symbols in the room. The solution should follow from premises the game establishes, not from the designer's private jokes. If alchemy is the theme, let the player experiment with logical combinations and see interesting (non-fatal) results.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 14                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p14">
+  <h2>#14 &mdash; The Sulking Guardian <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Threshold of the Inner Crypt. A spectral Guardian blocks the passage. It glows with malevolent light.
+
+<span class="prompt">&gt; TALK TO GUARDIAN</span>
+The Guardian stares at you. "You are unworthy."
+
+<span class="prompt">&gt; ATTACK GUARDIAN</span>
+Your weapon passes through it.
+
+<span class="prompt">&gt; GIVE OFFERING TO GUARDIAN</span>
+"I require no gifts. Only the proper words."
+
+<span class="prompt">&gt; SAY PASSWORD</span>
+"That is not what I want to hear."
+
+<span class="prompt">&gt; SAY "YOU ARE UNWORTHY"</span>
+"That is not what I want to hear."
+
+(The solution is: INSULT GUARDIAN. When prompted, type exactly: "YOUR MOTHER WAS A KOBOLD AND YOUR FATHER SMELT OF ECTOPLASM." Any other insult fails silently.)
+
+<span class="prompt">&gt; INSULT GUARDIAN</span>
+With what?
+
+<span class="prompt">&gt; "YOUR MOTHER WAS A KOBOLD AND YOUR FATHER SMELT OF ECTOPLASM"</span>
+The Guardian sputters with rage and vanishes! The way is open.</div>
+  <div class="improvement"><strong>Design failure:</strong> Exact-phrase puzzle with no way to discover the specific wording. It's a reference the player may not share. <strong>Fix:</strong> Accept any insult &mdash; INSULT GUARDIAN with any follow-up should work. Or, provide the phrase somewhere in the game (scratched on a wall, in a book, told by another NPC). Alternatively, make the Guardian a conversation puzzle where the player can discover its weakness through dialogue, not by guessing a specific pop-culture insult.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 15                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p15">
+  <h2>#15 &mdash; The Trophy Shelf <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Trophy Room. A shelf holds: a golden goblet, a silver crown, a jeweled scepter, a jade figurine, a ruby ring, and an obsidian orb.
+
+<span class="prompt">&gt; TAKE GOLDEN GOBLET</span>
+Taken.
+
+<span class="prompt">&gt; TAKE SILVER CROWN</span>
+Taken.
+
+<span class="prompt">&gt; TAKE JEWELED SCEPTER</span>
+Taken.
+
+(You spend 15 minutes examining each item, carrying different combinations to the Treasury for points. The golden goblet is the only item worth points. The silver crown kills you when worn. The scepter breaks. The figurine is a trap. The ring is cursed. The orb does nothing. There are no clues distinguishing the one real treasure from five trap items.)</div>
+  <div class="improvement"><strong>Design failure:</strong> Five out of six attractive items are traps or useless, with no way to distinguish them. The game wastes the player's time and punishes natural exploration behavior. <strong>Fix:</strong> Provide subtle clues: the goblet is warm to the touch (life), the crown tarnishes when examined closely (death), the figurine's eyes seem to follow you (trap). Let EXAMINE reward careful players. Or, simply don't make most of the interesting items lethal &mdash; let them have varied uses instead of being punishment for curiosity.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 16                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p16">
+  <h2>#16 &mdash; The Twin Keys <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Chamber of Two Locks. Two keyholes in the wall: one iron, one brass. You are carrying an iron key and a brass key.
+
+<span class="prompt">&gt; PUT IRON KEY IN IRON KEYHOLE</span>
+Which key do you mean, the iron key or the iron key?
+
+<span class="prompt">&gt; THE IRON KEY</span>
+Which key do you mean, the iron key or the iron key?
+
+<span class="prompt">&gt; FIRST KEY</span>
+I don't understand "first."
+
+(The brass key was renamed to "iron key" upon entering this room. Both keys are now called "iron key" and the parser cannot distinguish them. The solution is to DROP ALL, then TAKE KEY repeatedly &mdash; the parser picks them up in the correct order if you happen to use them immediately without putting anything else down.)
+
+<span class="prompt">&gt; DROP ALL</span>
+You drop: iron key, iron key, torch, flask.
+
+<span class="prompt">&gt; TAKE KEY</span>
+Taken. (iron key)
+
+<span class="prompt">&gt; PUT KEY IN IRON KEYHOLE</span>
+It fits! Click.
+
+<span class="prompt">&gt; TAKE KEY</span>
+Taken. (iron key)
+
+<span class="prompt">&gt; PUT KEY IN BRASS KEYHOLE</span>
+It fits! Click. The wall slides open.</div>
+  <div class="improvement"><strong>Design failure:</strong> Two objects with the same name and a parser that can't disambiguate them. The "solution" relies on engine quirks. <strong>Fix:</strong> Never give two items the same name. If items are similar, distinguish them: "tarnished iron key" and "polished iron key," or "small key" and "heavy key." The parser should use adjectives, ordinal numbers ("first key," "second key"), or context ("the key you found in the garden") to disambiguate.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 17                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p17">
+  <h2>#17 &mdash; The Narrow Ledge <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You stand on a narrow ledge above a chasm. The ledge continues to the east, but it looks fragile.
+
+<span class="prompt">&gt; EAST</span>
+You are carrying too much! The ledge cracks under your weight, and you fall.
+
+*** You have died. ***
+
+(The inventory limit for this ledge is 3 items. You are carrying 7. The game's normal inventory limit is 10. There is no warning, no way to test the weight limit, and the items you must carry to complete the next puzzle are on the other side of the ledge. You need to carry exactly the right 3 items, but you don't know which 3 you'll need until after you cross.)</div>
+  <div class="improvement"><strong>Design failure:</strong> A hidden, location-specific weight limit that requires foreknowledge of future puzzles. <strong>Fix:</strong> If a ledge is fragile, describe it clearly: "The ledge groans under your feet. You'd better carry as little as possible." Let the player test it: "The ledge creaks ominously" before the fatal step. Better yet, allow the player to make multiple trips, or provide a rope/basket to ferry items across. Never require perfect decisions the player cannot yet make.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 18                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p18">
+  <h2>#18 &mdash; The Stubborn Mural <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Gallery of Frescoes. The east wall bears a large mural of a battle scene. Exits are north and south.
+
+<span class="prompt">&gt; EXAMINE MURAL</span>
+A faded mural depicting a battle between knights and serpents.
+
+<span class="prompt">&gt; EXAMINE MURAL</span>
+A faded mural. You notice one knight holds a shield with an unusual emblem.
+
+<span class="prompt">&gt; EXAMINE MURAL</span>
+The emblem on the shield shimmers and pushes outward from the wall! A hidden passage opens behind the mural.
+
+(The passage only appears on the third consecutive EXAMINE of the same object. No hint suggests re-examining something that has already been fully described. The game has, until now, given complete descriptions on the first EXAMINE.)</div>
+  <div class="improvement"><strong>Design failure:</strong> Requiring repeated identical commands to trigger progressive reveals when the game has never established this pattern. <strong>Fix:</strong> Either establish this mechanic early (a tutorial moment where the player learns that repeated examination yields new details) or provide a reason to look again: "Something about the mural nags at you" after the first EXAMINE. Progressive detail is a fine concept if the player has any reason to believe it exists in this game.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 19                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p19">
+  <h2>#19 &mdash; The Whispering Skull <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Catacombs. A skull sits in an alcove. It appears to be... whispering.
+
+<span class="prompt">&gt; LISTEN TO SKULL</span>
+The skull whispers: "The sapphire door opens to the east, friend. The ruby door is certain death."
+
+<span class="prompt">&gt; EAST</span>
+You open the sapphire door.
+
+A volley of poison darts strikes you from all directions.
+
+*** You have died. ***
+
+(The skull is a liar. The ruby door to the west is the safe path. There is no way to determine this. The skull is described as "friendly-looking." This is the only NPC in the game whose advice is false. All other NPCs have been truthful.)</div>
+  <div class="improvement"><strong>Design failure:</strong> A single lying NPC in a game where all other NPCs are truthful, with no indication of deception. <strong>Fix:</strong> If an NPC lies, signal it. The skull could grin when it speaks, or its whisper could catch on certain words. Establish earlier in the game that not all advice is trustworthy. Or use the classic pattern: provide two NPCs, one who lies and one who tells the truth, and let the player work out which is which. Betrayal without foreshadowing is not a puzzle; it is a coin flip.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 20                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p20">
+  <h2>#20 &mdash; The False Error <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Archive. Tall shelves stuffed with decaying scrolls. A pedestal in the center holds a single intact book.
+
+<span class="prompt">&gt; READ BOOK</span>
+You open the book. The text reads: "To continue, speak the word of power."
+
+<span class="prompt">&gt; SAY WORD OF POWER</span>
+I don't know that word.
+
+<span class="prompt">&gt; SAY ABRACADABRA</span>
+ERROR 7: STACK OVERFLOW AT LINE 4012. RESTART? (Y/N)
+
+<span class="prompt">&gt; N</span>
+You blink. The pedestal has sunk into the floor, revealing a staircase downward.
+
+(The "error message" is fake. It is the puzzle's solution. Typing Y restarts the game. Typing N continues. There is no way to distinguish this from a real crash unless you are deeply suspicious of the game itself.)
+
+<span class="prompt">&gt; DOWN</span>
+You descend the hidden stairs.</div>
+  <div class="improvement"><strong>Design failure:</strong> A fake system error that is indistinguishable from a real crash. Most players will type Y and lose progress, or hard-quit the application. <strong>Fix:</strong> If breaking the fourth wall is the intent, make it slightly obvious &mdash; the "error" could rhyme, or include absurd details ("STACK OVERFLOW AT LINE POTATO"). The player should feel clever for noticing the fake, not punished for trusting their computer. Alternatively, make the word of power discoverable elsewhere in the game, and skip the fake error entirely.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 21                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p21">
+  <h2>#21 &mdash; The Flooded Vault <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You enter the Vault. It is flooded with waist-deep water. A chest sits on a raised platform, but the platform is too slippery to climb.
+
+<span class="prompt">&gt; SWIM TO PLATFORM</span>
+You swim to the platform but can't climb it. It's too slippery.
+
+<span class="prompt">&gt; USE ROPE ON PLATFORM</span>
+You don't have a rope.
+
+(The rope was found in the Well Room, 22 rooms ago. It was described as "an old frayed rope, probably useless." You left it there. You cannot go back. The game is unwinnable.)
+
+<span class="prompt">&gt; EXAMINE WATER</span>
+Cold, dark water. You should have brought a rope.</div>
+  <div class="improvement"><strong>Design failure:</strong> A required item was described as useless, is unreachable by the time it's needed, and the game taunts you for not having it. <strong>Fix:</strong> Never describe critical items as useless. "A sturdy rope coiled by the well" clearly signals utility. If a rope is needed later, either make it available near the puzzle or let the player fashion an alternative (tear cloth, use a chain). And the game should never mock the player for falling into its own trap.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 22                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p22">
+  <h2>#22 &mdash; The Humble Door <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You stand before a plain wooden door. A sign reads: "Only the unburdened may pass."
+
+<span class="prompt">&gt; OPEN DOOR</span>
+The door will not open. You feel weighed down.
+
+<span class="prompt">&gt; DROP SWORD</span>
+Dropped.
+
+<span class="prompt">&gt; OPEN DOOR</span>
+The door will not open. You feel weighed down.
+
+<span class="prompt">&gt; DROP ALL</span>
+You drop: torch, key, flask, coin, ceremonial blade, rose dust.
+
+<span class="prompt">&gt; OPEN DOOR</span>
+The door will not open. You feel weighed down.
+
+(You must also DROP your clothing. Which was never mentioned as an inventory item. You must type REMOVE CLOTHES, then DROP CLOTHES, then OPEN DOOR.)
+
+<span class="prompt">&gt; REMOVE CLOTHES</span>
+You undress.
+
+<span class="prompt">&gt; DROP CLOTHES</span>
+Dropped.
+
+<span class="prompt">&gt; OPEN DOOR</span>
+Truly unburdened, you pass through the door. You are in the Sanctum.</div>
+  <div class="improvement"><strong>Design failure:</strong> The puzzle requires dropping an item the player didn't know they had. "Unburdened" is interpreted with absurd literalism, requiring the player to strip naked. <strong>Fix:</strong> If "unburdened" means empty inventory, make it clear: "Empty your hands and your heart." Don't require hidden inventory items. If clothing must be part of the puzzle, mention it in INVENTORY from the start. Players can only interact with objects they know exist.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 23                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p23">
+  <h2>#23 &mdash; The Zodiac Lock <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Observatory. A massive stone disc is set into the floor, carved with twelve symbols. You recognize them as zodiac signs. A plaque reads: "Align the fish with the water-bearer."
+
+<span class="prompt">&gt; TURN DISC</span>
+Which sign should be on top?
+
+<span class="prompt">&gt; PISCES</span>
+The disc turns. Nothing happens.
+
+<span class="prompt">&gt; AQUARIUS</span>
+The disc turns. Nothing happens.
+
+(The solution requires knowing that in sidereal astrology &mdash; not the tropical astrology most Westerners know &mdash; the positions of Pisces and Aquarius are offset by one house. You must align Aries with Pisces. This requires specialized astronomical knowledge not available anywhere in the game.)
+
+<span class="prompt">&gt; ARIES</span>
+The disc locks into place! A trapdoor opens in the floor.</div>
+  <div class="improvement"><strong>Design failure:</strong> Requires specialized real-world knowledge (sidereal vs. tropical astrology) with no in-game source for that knowledge. <strong>Fix:</strong> Keep the puzzle self-contained. A star chart in the Observatory could show the correct alignment. Or simply let the straightforward answer (Pisces with Aquarius) work. Puzzles should test the player's reasoning with the game's own information, not their expertise in niche topics the game doesn't teach.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 24                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p24">
+  <h2>#24 &mdash; The Appendix Reference <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Library Annex. A lectern holds an open book. The text reads: "The incantation you seek is found in Appendix C of the Adventurer's Companion, page 47."
+
+<span class="prompt">&gt; READ APPENDIX</span>
+You're not holding the Adventurer's Companion.
+
+<span class="prompt">&gt; FIND ADVENTURER'S COMPANION</span>
+I don't understand "find."
+
+(The Adventurer's Companion was a physical manual meant to ship with the game. It was never printed. Abyssal Software went bankrupt before the second print run. The game's only release came without it. The incantation &mdash; "VALTHOR MENGIS" &mdash; is known today solely from a 1993 Usenet post by a former employee.)
+
+<span class="prompt">&gt; SAY VALTHOR MENGIS</span>
+The air crackles with energy. A portal opens to the north!</div>
+  <div class="improvement"><strong>Design failure:</strong> The puzzle's answer exists only in a physical document that was never distributed. <strong>Fix:</strong> Every puzzle solution must be obtainable within the game itself. If a companion document exists, it should supplement the experience, not gate it. Place the incantation on a scroll in a nearby room, or let the player research it in the in-game library. A puzzle whose answer is outside the game is not a puzzle; it is a hostage situation.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 25                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p25">
+  <h2>#25 &mdash; The Bone Collection <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Ossuary. Thousands of bones line the walls. On the floor: a bone key, a bone lever, a bone whistle, a bone ring, a bone idol, and a bone box.
+
+<span class="prompt">&gt; TAKE BONE KEY</span>
+Which bone do you mean? The bone key, bone lever, bone whistle, bone ring, bone idol, or bone box?
+
+<span class="prompt">&gt; BONE KEY</span>
+Which bone do you mean? The bone key, bone lever, bone whistle, bone ring, bone idol, or bone box?
+
+<span class="prompt">&gt; KEY</span>
+I don't see a key here.
+
+<span class="prompt">&gt; TAKE KEY</span>
+I don't see a key here.
+
+<span class="prompt">&gt; TAKE THE BONE KEY</span>
+Which bone do you mean? The bone key, bone lever, bone whistle, bone ring, bone idol, or bone box?
+
+(The parser treats "bone" as the noun and ignores everything after it. The only way to take a specific item is: GET 3RD &mdash; using its ordinal position in the room's internal list. Which you cannot see.)</div>
+  <div class="improvement"><strong>Design failure:</strong> The parser cannot disambiguate multi-word nouns sharing a common first word, and the only workaround requires knowledge of internal data structures. <strong>Fix:</strong> The parser must handle compound nouns: "bone key" should parse as [adjective: bone] + [noun: key]. When disambiguation is needed, the game should ask "Do you mean the bone KEY, the bone LEVER, or...?" and accept short replies like "key." This is a basic parser competency issue.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 26                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p26">
+  <h2>#26 &mdash; The Copyright Clue <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Hall of Records. A stone tablet reads: "The answer was there from the beginning."
+
+<span class="prompt">&gt; EXAMINE TABLET</span>
+"The answer was there from the beginning." It seems to have no further meaning.
+
+<span class="prompt">&gt; LOOK</span>
+Hall of Records. Exits are east and west. A stone tablet is mounted on the wall.
+
+(The solution: the "beginning" is the game's title screen. The copyright notice reads: "Copyright 1987 Abyssal Software. Reg. No. 8812." The combination to the door in this room is 8812.)
+
+<span class="prompt">&gt; ENTER 8812</span>
+The lock clicks and the east door swings open.</div>
+  <div class="improvement"><strong>Design failure:</strong> The solution requires remembering a detail from the copyright notice on the title screen, which most players skip immediately. <strong>Fix:</strong> If "the beginning" is the clue, make a copy of the relevant information accessible in-game &mdash; a plaque, a registration certificate, a builder's mark. Or let the player type RECALL or REMEMBER to see the title screen text. Never hide a puzzle solution in a screen the player sees for two seconds before mashing a key to start the game.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 27                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p27">
+  <h2>#27 &mdash; The Crooked Compass <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Crossroads. Passages lead north, south, east, and west. A sign points north: "TO THE THRONE ROOM."
+
+<span class="prompt">&gt; NORTH</span>
+You emerge in the Prison Cells.
+
+<span class="prompt">&gt; SOUTH</span>
+You are at the Crossroads.
+
+<span class="prompt">&gt; EAST</span>
+You enter the Kitchen.
+
+<span class="prompt">&gt; WEST</span>
+You climb stairs and arrive at the Throne Room.
+
+(The compass directions are rotated 90 degrees in this section of the game. The sign pointing "north" actually sends you west. This is never explained or acknowledged. It affects eight rooms.)</div>
+  <div class="improvement"><strong>Design failure:</strong> Compass directions silently don't match the described geometry. The sign is technically correct (the Throne Room IS to the "north" &mdash; the game simply sends you west when you type NORTH) but the map is incoherent. <strong>Fix:</strong> If a location has warped geography, tell the player: "Your compass spins uselessly here." Give them a reason to distrust directions and a way to reorient (examining moss on walls, following sounds). Alternatively, simply make the map consistent with the directions. Disorientation should be a feature, not a bug.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 28                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p28">
+  <h2>#28 &mdash; The Calendar Gate <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Temporal Vestibule. An ornate gate with seven panels, each depicting a day of the week. Today's panel glows faintly.
+
+<span class="prompt">&gt; EXAMINE GATE</span>
+Seven panels. The one depicting Wednesday glows. A plaque reads: "Pass only on the Sabbath."
+
+<span class="prompt">&gt; OPEN GATE</span>
+The gate is sealed. It is not the appointed day.
+
+(The gate only opens on Sunday &mdash; the in-game day of the week, which corresponds to the real-world system clock. If you are playing on any other day, you must either wait until Sunday or change your computer's clock. The in-game calendar advances in real-time.)
+
+<span class="prompt">&gt; WAIT</span>
+Time passes. It is still Wednesday.</div>
+  <div class="improvement"><strong>Design failure:</strong> A puzzle gated by real-world time, potentially requiring the player to wait days or tamper with their system clock. <strong>Fix:</strong> If a temporal puzzle is the goal, use in-game time that the player can advance (a clock mechanism, a fast-forward spell, a sleep command that advances in-game days). Never tie game progress to the real-world calendar. A puzzle should be solvable in the play session the player has, not require scheduling their life around a game.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 29                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p29">
+  <h2>#29 &mdash; The Chain of Doors <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You face a red door. It is locked. Beyond it (you can see through a grate) are a green door, then a blue door, then a white door. Each is locked.
+
+<span class="prompt">&gt; UNLOCK RED DOOR</span>
+With what?
+
+<span class="prompt">&gt; RED KEY</span>
+You unlock the red door. Beyond it: the green door.
+
+<span class="prompt">&gt; UNLOCK GREEN DOOR</span>
+The green key is beyond the blue door.
+
+The blue key is beyond the white door. The white key is in the room you need the red key to leave. The red key is consumed when used.
+
+(The keys must be used in reverse order: white, blue, green, red. But the white key is in the room behind the red door. You must use the red key, grab the white key, then... the red door has locked behind you. The game is unwinnable. Unless you first duplicate the red key using the Alchemist's equipment from Puzzle 13. Which is in a room you can no longer access.)
+
+This puzzle has no solution.</div>
+  <div class="improvement"><strong>Design failure:</strong> A locked-door chain with circular dependencies that creates an unwinnable state. Keys are consumed, and the sequence requires an item from an inaccessible earlier puzzle. <strong>Fix:</strong> Design lock chains so they are solvable in at least one clear order. Don't consume keys (or provide copies). If a multi-lock sequence is the puzzle, make all keys accessible within the same area. Test the puzzle from every possible game state. A locked-door chain should be a satisfying logic puzzle, not a logistics impossibility.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 30                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p30">
+  <h2>#30 &mdash; The Nested Boxes <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Treasury Antechamber. On a pedestal: a large iron box.
+
+<span class="prompt">&gt; OPEN BOX</span>
+The iron box is locked. It requires an iron key.
+
+<span class="prompt">&gt; UNLOCK BOX WITH IRON KEY</span>
+Opened. Inside: a smaller bronze box. It is locked.
+
+<span class="prompt">&gt; UNLOCK BRONZE BOX WITH BRONZE KEY</span>
+You don't have a bronze key.
+
+(The bronze key is inside a locked silver chest in the Dusty Storeroom. The silver chest requires a silver key. The silver key is inside a locked stone coffer in the Cellar. The stone coffer requires a chisel, which broke three puzzles ago and cannot be replaced.)
+
+<span class="prompt">&gt; EXAMINE BRONZE BOX</span>
+A small bronze box. Inside it, you can hear something rattle. It's probably very important.</div>
+  <div class="improvement"><strong>Design failure:</strong> Nested locked containers whose key chain leads back to a destroyed tool, creating another unwinnable state. The innermost item is tantalizingly audible but permanently inaccessible. <strong>Fix:</strong> Keep nesting shallow (2 levels max). Ensure all keys are obtainable from the current game state. If a tool can break, provide a replacement or alternative method. Nested containers can be a satisfying unwrapping experience &mdash; but only if the player can actually finish unwrapping.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 31                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p31">
+  <h2>#31 &mdash; The Fickle Bridge <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You stand before a rope bridge spanning a dark chasm. It sways ominously.
+
+<span class="prompt">&gt; CROSS BRIDGE</span>
+You step onto the bridge. Halfway across, a rope snaps! You plummet.
+
+*** You have died. ***
+
+<span class="prompt">[RESTORE]</span>
+
+<span class="prompt">&gt; CROSS BRIDGE</span>
+You step onto the bridge. You cross safely to the other side.
+
+(Whether the bridge holds is random &mdash; a 50/50 chance each crossing. There is no way to improve the odds, repair the bridge, or find an alternate route. You must save and retry until the coin flip goes your way.)</div>
+  <div class="improvement"><strong>Design failure:</strong> A pure random chance obstacle with no skill or puzzle element. Success or failure is a coin flip, solvable only by save-scumming. <strong>Fix:</strong> Remove the randomness. If the bridge is dangerous, let the player make it safer: TIE ROPE to reinforce it, or TEST BRIDGE to check a plank. If tension is the goal, describe the crossing in stages with the player making choices at each stage (which plank to step on, whether to rush or go slow). Risk should be a consequence of decisions, not dice.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 32                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p32">
+  <h2>#32 &mdash; The Acid and the Vial <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Laboratory. A corroded lock seals the exit. On the bench: a vial of acid and a glass funnel.
+
+<span class="prompt">&gt; USE ACID ON LOCK</span>
+You pour acid on yourself. It burns horribly.
+
+*** You have died. ***
+
+<span class="prompt">[RESTORE]</span>
+
+<span class="prompt">&gt; POUR ACID ON LOCK</span>
+You pour acid on yourself. It burns horribly.
+
+*** You have died. ***
+
+<span class="prompt">[RESTORE]</span>
+
+(The command must be: USE LOCK ON ACID. The game interprets the first object as the target. "USE ACID ON LOCK" means "apply the lock to the acid" in this parser's logic. Only "USE LOCK ON ACID" means "apply acid to lock." This is the reverse of how the command reads in English.)
+
+<span class="prompt">&gt; USE LOCK ON ACID</span>
+You carefully pour the acid onto the corroded lock. It dissolves with a hiss. The door is free.</div>
+  <div class="improvement"><strong>Design failure:</strong> The USE X ON Y syntax is reversed from natural English, and the wrong order is instantly fatal. <strong>Fix:</strong> Parse USE A ON B and USE B ON A as equivalent &mdash; the game should determine the logical action from context (acid dissolves lock, not lock dissolves acid). If the parser must distinguish, use clearer syntax: POUR ACID ON LOCK, APPLY ACID TO LOCK. And never make a syntax misunderstanding immediately lethal.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 33                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p33">
+  <h2>#33 &mdash; The Resetting Tiles <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Tile Room. Nine floor tiles form a 3x3 grid. Some are raised, some lowered. A door on the far wall has nine bolt-holes.
+
+<span class="prompt">&gt; STEP ON TILE 1</span>
+Tile 1 lowers. Tiles 2 and 4 raise.
+
+<span class="prompt">&gt; STEP ON TILE 5</span>
+Tile 5 lowers. Tiles 2, 4, 6, and 8 toggle.
+
+[After 20 minutes of working out the logic...]
+
+<span class="prompt">&gt; STEP ON TILE 9</span>
+All tiles are now lowered! The bolts slide back. The door is almost open!
+
+<span class="prompt">&gt; OPEN DOOR</span>
+The door is on the far side of the room. You step off the tiles.
+
+All nine tiles reset to their original positions. The bolts slam shut.
+
+(Leaving the tile grid resets the puzzle. The door is across the room from the grid. There is no way to hold the tiles down. You must solve the puzzle, then solve it again from the doorway somehow. There is no way to do this.)</div>
+  <div class="improvement"><strong>Design failure:</strong> The puzzle resets the moment you try to use its result. The spatial arrangement makes the solution physically impossible to capitalize on. <strong>Fix:</strong> Either keep the tiles locked in their solved position, add a timer (30 seconds to reach the door after solving), or let the player place heavy objects on tiles to hold them. If a puzzle resets, the player must be able to solve it from the position they need to be in. Never design a puzzle whose solution evaporates before it can be used.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 34                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p34">
+  <h2>#34 &mdash; The Chatty Pillar <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Colonnade. Four stone pillars support the ceiling. The far end of the room is blocked by rubble.
+
+<span class="prompt">&gt; EXAMINE PILLARS</span>
+Four ordinary stone pillars. They hold up the ceiling.
+
+<span class="prompt">&gt; EXAMINE RUBBLE</span>
+A pile of fallen masonry blocks the northern exit.
+
+<span class="prompt">&gt; MOVE RUBBLE</span>
+The rubble is too heavy.
+
+<span class="prompt">&gt; BREAK RUBBLE</span>
+You have nothing to break it with.
+
+(The solution is TALK TO PILLAR. The third pillar is secretly enchanted and will clear the rubble if asked politely. There is no indication that any pillar is magical, alive, or conversational.)
+
+<span class="prompt">&gt; TALK TO PILLAR</span>
+Which pillar?
+
+<span class="prompt">&gt; THIRD PILLAR</span>
+"Oh! A visitor! I've been waiting centuries. Let me clear that rubble for you."
+
+The pillar hums. The rubble dissolves.</div>
+  <div class="improvement"><strong>Design failure:</strong> The solution requires talking to an object described as completely ordinary, with no hint of sentience or magic. <strong>Fix:</strong> If a pillar is magical, describe something unusual about it: unusual warmth, faint hum, runes, or a face carved in the stone. Let EXAMINE THIRD PILLAR reveal: "This pillar seems warmer than the others. You could swear you hear a faint murmur." Now TALK TO PILLAR becomes a reasonable thing to try.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 35                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p35">
+  <h2>#35 &mdash; The Crystal Sequence <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Crystal Cavern. Five crystals protrude from the wall: red, blue, green, yellow, white. A door is sealed with crystalline veins.
+
+<span class="prompt">&gt; TOUCH RED CRYSTAL</span>
+The red crystal glows.
+
+<span class="prompt">&gt; TOUCH BLUE CRYSTAL</span>
+The blue crystal glows. The red crystal dims.
+
+(You must touch them in the correct order. There are 120 possible permutations of five crystals. There are no clues. No pattern. No hint in any room of the game. The correct order &mdash; green, white, red, yellow, blue &mdash; was the designer's favorite color sequence as a child.)
+
+<span class="prompt">&gt; TOUCH GREEN</span>
+<span class="prompt">&gt; TOUCH WHITE</span>
+<span class="prompt">&gt; TOUCH RED</span>
+<span class="prompt">&gt; TOUCH YELLOW</span>
+<span class="prompt">&gt; TOUCH BLUE</span>
+All five crystals glow in harmony! The crystalline veins dissolve. The door opens.</div>
+  <div class="improvement"><strong>Design failure:</strong> A permutation puzzle with 120 possibilities and zero clues. The answer is based on the designer's personal preference. <strong>Fix:</strong> Provide a clue system: a rainbow spectrum painted elsewhere, a nursery rhyme about colors, or a musical tone when each crystal is touched that hints at a melody. The player should be able to deduce the sequence. "Read the designer's mind" is not a puzzle category; it is a design failure category.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 36                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p36">
+  <h2>#36 &mdash; The Spinning Dial <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Vault Door. A combination dial with numbers 0&ndash;99. No hints anywhere.
+
+<span class="prompt">&gt; SET DIAL TO 1</span>
+Nothing happens.
+
+<span class="prompt">&gt; SET DIAL TO 2</span>
+Nothing happens.
+
+(The combination is randomly generated each playthrough. It is a number between 0 and 99. There are no clues, no patterns, and no way to narrow it down. You try all 100 numbers. On your playthrough, it was 73.)
+
+<span class="prompt">&gt; SET DIAL TO 73</span>
+Click! The vault door swings open.</div>
+  <div class="improvement"><strong>Design failure:</strong> A random combination with no clues is not a puzzle; it is a brute-force search of 100 values. <strong>Fix:</strong> If a combination must vary per playthrough, scatter clues: "The first digit is the number of pillars in the Colonnade." "The second is hidden under the skull in the Catacombs." Give the player something to solve. If the combination is fixed, leave clues in the environment. A lock without a discoverable combination is just a wall with extra steps.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 37                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p37">
+  <h2>#37 &mdash; The Forgotten Helmet <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You enter the Lava Falls. Molten rock drips from above.
+
+<span class="prompt">&gt; NORTH</span>
+A drop of lava strikes your head. Without protection, you are burned alive.
+
+*** You have died. ***
+
+(The solution requires a helmet from the Armory &mdash; 38 rooms back, through 6 areas you've already cleared. There is no shortcut. The round trip takes approximately 80 turns. The hunger timer is still running.)
+
+<span class="prompt">[RESTORE]</span>
+
+[80 turns of backtracking later...]
+
+<span class="prompt">&gt; WEAR HELMET</span>
+You put on the helmet.
+
+<span class="prompt">&gt; NORTH</span>
+Lava drips onto your helmet. It holds! You pass through safely.</div>
+  <div class="improvement"><strong>Design failure:</strong> Extreme backtracking to a distant room for an item that was not obviously needed, with a hunger timer punishing every step. <strong>Fix:</strong> Place the helmet near the lava (a fallen adventurer's helmet, a guard post, a supply cache). If an item from far away is needed, provide a hint well in advance: "You'll want head protection beyond the Falls." Or add shortcuts: a tunnel, a teleporter, a fast-travel mechanism. The player's time has value.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 38                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p38">
+  <h2>#38 &mdash; The Self-Referential Clue <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Chamber of Mirrors. Every surface is reflective. A voice echoes: "Look within yourself."
+
+<span class="prompt">&gt; EXAMINE MIRROR</span>
+You see your own reflection.
+
+<span class="prompt">&gt; EXAMINE SELF</span>
+You are an adventurer. You've seen better days.
+
+<span class="prompt">&gt; EXAMINE REFLECTION</span>
+Your reflection stares back at you.
+
+(The solution: EXAMINE INVENTORY. Not the items in it &mdash; the literal inventory command's output. The letters of the inventory list, read as an acrostic, spell "TOMB." You must then SAY TOMB.)
+
+<span class="prompt">&gt; INVENTORY</span>
+You are carrying:
+  Torch
+  Old key
+  Malachite flask
+  Bone whistle
+
+<span class="prompt">&gt; SAY TOMB</span>
+The mirrors shatter! A passage is revealed behind them.</div>
+  <div class="improvement"><strong>Design failure:</strong> The puzzle requires treating the game's UI output as a cipher. Most players will never notice that inventory item names form an acrostic, because they read inventories for content, not letter patterns. <strong>Fix:</strong> If an acrostic puzzle is the intent, signal it: "The voice says: 'Your burdens spell the way.'" Make the acrostic visible &mdash; capitalize the first letters, format the list with emphasis, or have a mirror literally show the first letter of each item. The puzzle is clever; it just needs the player to know they're solving it.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 39                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p39">
+  <h2>#39 &mdash; The Contradictory Lever <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Control Room. Two levers on the wall, labeled "OPEN" and "CLOSE." The exit is sealed.
+
+<span class="prompt">&gt; PULL OPEN LEVER</span>
+The exit seals tighter. A grinding noise echoes.
+
+<span class="prompt">&gt; PULL CLOSE LEVER</span>
+The exit seals tighter. A grinding noise echoes.
+
+<span class="prompt">&gt; PUSH OPEN LEVER</span>
+The exit seals tighter.
+
+<span class="prompt">&gt; PUSH CLOSE LEVER</span>
+The exit seals tighter.
+
+(Both levers seal the exit regardless of action. The solution is: PULL OPEN LEVER, then PUSH CLOSE LEVER, then PULL OPEN LEVER again &mdash; a specific three-step sequence. The labels are meaningless. Earlier in the game, a sign said "The labels tell truth." They do not.)
+
+<span class="prompt">&gt; PULL OPEN</span>
+<span class="prompt">&gt; PUSH CLOSE</span>
+<span class="prompt">&gt; PULL OPEN</span>
+The exit groans open!</div>
+  <div class="improvement"><strong>Design failure:</strong> The puzzle contradicts its own labels and an earlier in-game statement that the labels are truthful. The solution is an arbitrary sequence with no logic. <strong>Fix:</strong> Make the labels mean something. OPEN opens, CLOSE closes. If a sequence is required, clue it: a diagram on the wall showing the steps, or a rhyme ("Open, close, and open again"). If the labels intentionally lie, establish earlier that this area's labels are reversed. The game's own rules must be consistent, or the player has nothing to reason with.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 40                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p40">
+  <h2>#40 &mdash; The Copper Plate <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Forge Room. A slot in the wall is labeled "INSERT PLATE." You are carrying a copper nameplate.
+
+<span class="prompt">&gt; INSERT NAMEPLATE</span>
+I don't understand "nameplate."
+
+<span class="prompt">&gt; INSERT PLATE</span>
+I don't see a plate here.
+
+<span class="prompt">&gt; INSERT COPPER NAMEPLATE</span>
+I don't understand "nameplate."
+
+<span class="prompt">&gt; USE PLATE</span>
+I don't see a plate here.
+
+(The game internally identifies the copper nameplate as "copper." Not "nameplate," not "plate," not "copper nameplate." The only accepted noun is the material it's made of.)
+
+<span class="prompt">&gt; INSERT COPPER</span>
+You slide the copper into the slot. Gears engage. A door opens to the east.</div>
+  <div class="improvement"><strong>Design failure:</strong> The object can only be referenced by its material, not by what it actually is. The game rejects the name shown in the room description. <strong>Fix:</strong> Accept all reasonable nouns: NAMEPLATE, PLATE, COPPER PLATE, COPPER NAMEPLATE, and COPPER should all work. An object's name, its description, and its parser keyword must all agree. If the player can read a word in the game's own text, the parser should accept that word.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 41                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p41">
+  <h2>#41 &mdash; The Hidden Rope <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Bell Tower. A frayed bell rope hangs from the ceiling high above. The upper chambers are beyond a hole in the ceiling.
+
+<span class="prompt">&gt; CLIMB ROPE</span>
+The rope is part of the scenery and cannot be interacted with.
+
+<span class="prompt">&gt; TAKE ROPE</span>
+That is not something you can take.
+
+<span class="prompt">&gt; PULL ROPE</span>
+The rope is just scenery.
+
+<span class="prompt">&gt; EXAMINE ROPE</span>
+A frayed bell rope. It looks climbable.
+
+(The rope is flagged as scenery, not an interactive object, despite being described as if you can use it. The actual solution is: RING BELL. This detaches the rope, which falls and becomes a takeable, climbable object. "RING BELL" works even though no bell is described or visible.)
+
+<span class="prompt">&gt; RING BELL</span>
+A distant bell clangs. The rope detaches and falls to the floor.
+
+<span class="prompt">&gt; CLIMB ROPE</span>
+You climb the rope through the hole in the ceiling.</div>
+  <div class="improvement"><strong>Design failure:</strong> A visually interactive object is coded as scenery, and the real interaction requires referencing an object (bell) not present in the room description. <strong>Fix:</strong> If a rope is described, it should be interactive. CLIMB ROPE, PULL ROPE, and TAKE ROPE are all reasonable commands a player would try and all should do something. If ringing the bell is the intended action, mention the bell: "A bell rope dangles from the belfry above." Players can only think about what you describe to them.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 42                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p42">
+  <h2>#42 &mdash; The Pop Culture Gate <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Recreation Hall. A jukebox stands against the wall. A gate to the east is sealed. Above the gate: "Name the king."
+
+<span class="prompt">&gt; SAY KING</span>
+"That is not a name."
+
+<span class="prompt">&gt; SAY ARTHUR</span>
+"No."
+
+<span class="prompt">&gt; SAY SOLOMON</span>
+"No."
+
+<span class="prompt">&gt; SAY CHARLEMAGNE</span>
+"No."
+
+(The jukebox and the word "king" together indicate Elvis Presley, "The King of Rock and Roll." This is a 1980s pop culture reference. The game was made in 1987. If you are not familiar with the nickname, or you are from a country or era where this is not common knowledge, this puzzle is unsolvable.)
+
+<span class="prompt">&gt; SAY ELVIS</span>
+The jukebox plays a brief melody. The gate opens!</div>
+  <div class="improvement"><strong>Design failure:</strong> Relies on culture-specific pop trivia unrelated to the game's medieval fantasy setting. <strong>Fix:</strong> If the jukebox is a narrative element, lean into it: play a song snippet, and the song title or lyrics contain the answer. If "Name the king" is the puzzle, ground it in the game's lore &mdash; a throne room plaque, a named historical king in the crypt's backstory. Puzzles in a fantasy game should draw from the fantasy world, not the real world's pop culture.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 43                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p43">
+  <h2>#43 &mdash; The Pamphlet Solution <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Reading Room. Shelves of books. A locked display case holds a golden amulet. The case has a word-lock.
+
+<span class="prompt">&gt; EXAMINE BOOKS</span>
+Hundreds of books. Most are too decayed to read.
+
+<span class="prompt">&gt; READ BOOKS</span>
+You'd be here for years.
+
+<span class="prompt">&gt; SEARCH BOOKS</span>
+You find a thin pamphlet titled "Solutions to Common Entrapments."
+
+<span class="prompt">&gt; READ PAMPHLET</span>
+"To open the display case, consult the game manual, Chapter 3, Section 2."
+
+(The game manual does contain this information: the word is "PERSEVERANCE." But the puzzle requires owning the physical manual, which &mdash; unlike the Adventurer's Companion from Puzzle 24 &mdash; actually exists. It was included in the box. If you bought the game secondhand, you don't have it.)
+
+<span class="prompt">&gt; SET WORD-LOCK TO PERSEVERANCE</span>
+The case opens! You take the golden amulet.</div>
+  <div class="improvement"><strong>Design failure:</strong> The solution exists only in a physical document that may not be available to all players. Copy protection masquerading as a puzzle. <strong>Fix:</strong> Include the answer within the game itself. The pamphlet could contain the answer directly, or another book in the room could provide it. If anti-piracy measures are necessary, make them a one-time gate at the start of the game, not embedded in a mid-game puzzle that blocks progress and has no in-game workaround.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 44                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p44">
+  <h2>#44 &mdash; The Silent Sentinel <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Gatehouse. An armored sentinel stands before the exit, sword drawn. It does not move.
+
+<span class="prompt">&gt; TALK TO SENTINEL</span>
+The sentinel is silent.
+
+<span class="prompt">&gt; GIVE KEY TO SENTINEL</span>
+The sentinel ignores you.
+
+<span class="prompt">&gt; ATTACK SENTINEL</span>
+Your blow glances off its armor. The sentinel does not react.
+
+<span class="prompt">&gt; SHOW AMULET TO SENTINEL</span>
+The sentinel ignores you.
+
+<span class="prompt">&gt; PUSH SENTINEL</span>
+You push the sentinel. It topples over with a tremendous crash. It was empty armor, standing upright by balance alone. The way is clear.
+
+(There is no clue that the sentinel is hollow. It is described as if alive. EXAMINE SENTINEL says "An armored figure, standing watch." The solution is to simply push it, which contradicts the threatening description.)</div>
+  <div class="improvement"><strong>Design failure:</strong> An NPC presented as a living threat is actually an inanimate prop, but no observation or interaction reveals this. <strong>Fix:</strong> Let EXAMINE show a clue: "The sentinel's visor is open. You see nothing behind it &mdash; only darkness." Or: "Dust has settled on its shoulders. It hasn't moved in a very long time." Give the player a reason to doubt the threat. The "aha!" of realizing it's empty armor should be an earned insight, not a random guess.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 45                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p45">
+  <h2>#45 &mdash; The Pitch Black Pit <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You descend into the pit. It is completely dark.
+
+It is pitch dark. You are likely to be eaten by a grue.
+
+<span class="prompt">&gt; LIGHT TORCH</span>
+Your torch burned out long ago.
+
+<span class="prompt">&gt; LIGHT MATCH</span>
+You have no matches.
+
+<span class="prompt">&gt; FEEL AROUND</span>
+I don't understand "feel."
+
+<span class="prompt">&gt; NORTH</span>
+You stumble into a wall and knock yourself unconscious.
+
+*** You have died. ***
+
+(The pit is a required area. Your only light source is the torch, which expired in Puzzle 11. There are no matches, no lantern, no spell, and no way to navigate in the dark. The game provides no alternative light. The intended solution, per the designer's notes, is to use the "glowing amulet from Puzzle 43." But the amulet is not described as glowing, LIGHT AMULET is not a recognized command, and you must type WEAR AMULET to activate its glow, which is never hinted.)
+
+<span class="prompt">&gt; WEAR AMULET</span>
+The amulet emits a soft golden glow! You can see! You are in a rough-hewn tunnel.</div>
+  <div class="improvement"><strong>Design failure:</strong> A dark area with no available light source and a hidden solution requiring a non-obvious use of a non-obviously luminous item. <strong>Fix:</strong> Describe the amulet as faintly glowing when first obtained. In the dark, print: "Something in your pack gives off a faint light." Accept LIGHT AMULET, HOLD AMULET, and USE AMULET as well as WEAR AMULET. If a region requires light, ensure the player either has a light source or can immediately find one within that region.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 46                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p46">
+  <h2>#46 &mdash; The Patience Altar <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">Shrine of Stillness. A stone altar sits in the center. The exit to the north is blocked by a shimmering barrier. An inscription reads: "Be still."
+
+<span class="prompt">&gt; WAIT</span>
+Time passes. The barrier shimmers.
+
+<span class="prompt">&gt; PRAY</span>
+You kneel. Nothing happens.
+
+<span class="prompt">&gt; MEDITATE</span>
+I don't understand "meditate."
+
+<span class="prompt">&gt; SIT</span>
+You sit down. Nothing happens.
+
+<span class="prompt">&gt; DO NOTHING</span>
+I don't understand "do."
+
+(The solution is to literally do nothing. Type no command. Wait at the prompt without pressing Enter. After 3 real-time minutes of player inactivity, the game prints:)
+
+The barrier fades. Your stillness has been rewarded. The way north is open.</div>
+  <div class="improvement"><strong>Design failure:</strong> The solution requires the player to stop playing the game for three minutes. Most players will never do this; they'll assume the game has frozen or they're missing something. <strong>Fix:</strong> If inaction is the mechanic, accept WAIT, MEDITATE, BE STILL, or DO NOTHING as commands. Make 3 WAITs sufficient. If a real-time pause is truly desired (it shouldn't be), reduce it to 15 seconds and give incremental feedback: "The barrier flickers..." to confirm the player is on the right track.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 47                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p47">
+  <h2>#47 &mdash; The Spike Room <span class="badge classic">Classic</span></h2>
+  <div class="transcript">You enter the Hall of Blades. Spikes line the walls. A treasure chest sits in the center.
+
+<span class="prompt">&gt; EXAMINE ROOM</span>
+Spikes everywhere. The chest is tempting. There seems to be no safe way to approach it.
+
+<span class="prompt">&gt; TAKE CHEST</span>
+You walk toward the chest. The floor gives way. Spikes impale you from below.
+
+*** You have died. ***
+
+<span class="prompt">[RESTORE]</span>
+
+(You must die, read the death text &mdash; "As you fall, you notice a lever beneath the floor panel" &mdash; then restore and PULL LEVER before approaching the chest. The lever is only visible during the death sequence. It does not exist in the room description for a living player.)
+
+<span class="prompt">&gt; PULL LEVER</span>
+You reach beneath the loose panel and pull the hidden lever. The floor locks into place.
+
+<span class="prompt">&gt; TAKE CHEST</span>
+You approach safely and open the chest.</div>
+  <div class="improvement"><strong>Design failure:</strong> The solution is only visible during a death sequence, requiring the player to die first. This is "learning by dying" &mdash; the puzzle cannot be solved without experiencing fatal failure. <strong>Fix:</strong> Make the lever discoverable by a living player. EXAMINE FLOOR could reveal: "One panel seems slightly raised, with a gap underneath." Or SEARCH ROOM could find it. Death should be a consequence of mistakes, not a required research step. The player should be able to notice the danger and prevent it, not walk into it to read the loading-screen hint.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 48                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p48">
+  <h2>#48 &mdash; The One-Way Gallery <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You slide down a chute into the Gallery of Ancestors. Portraits line the walls. A door leads north.
+
+<span class="prompt">&gt; SOUTH</span>
+The chute is too steep to climb back up.
+
+<span class="prompt">&gt; EXAMINE PORTRAITS</span>
+Twelve portraits of stern-looking people.
+
+<span class="prompt">&gt; NORTH</span>
+The door is sealed. It has twelve buttons, each below a portrait.
+
+(You must press the buttons in the order of the ancestors' reigns, which are inscribed on their frames. But the fourth portrait's inscription is in the room you just slid down from &mdash; it was on a plaque above the chute entrance, visible only before you entered the chute. If you didn't read it, you cannot complete the sequence. The game is unwinnable.)
+
+<span class="prompt">&gt; EXAMINE FOURTH PORTRAIT</span>
+The frame inscription is blank. "See dedication plaque, upper gallery."</div>
+  <div class="improvement"><strong>Design failure:</strong> A required clue is in an area the player can never revisit, and there's no indication to read it before the one-way transition. <strong>Fix:</strong> Never place required information behind a one-way door the player hasn't passed through yet. Include all necessary clues in the puzzle room itself, or let the player return to the upper gallery via another route. If information is in a previous area, warn the player: "You should read everything above before descending."</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 49                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p49">
+  <h2>#49 &mdash; The Sand Timer <span class="badge classic">Classic</span></h2>
+  <div class="transcript">Hourglass Chamber. An enormous hourglass dominates the room. Sand streams through it. Exits lead east and west.
+
+<span class="prompt">&gt; EXAMINE HOURGLASS</span>
+Sand flows steadily from top to bottom. It is unmarked.
+
+<span class="prompt">&gt; EAST</span>
+Jewel Room. A diamond sits on a pedestal.
+
+<span class="prompt">&gt; TAKE DIAMOND</span>
+Taken.
+
+<span class="prompt">&gt; WEST</span>
+Hourglass Chamber. The hourglass has nearly emptied.
+
+<span class="prompt">&gt; WEST</span>
+Trophy Vault.
+
+<span class="prompt">&gt; PUT DIAMOND ON DISPLAY</span>
+The hourglass runs out! The chamber floods with sand! You are buried alive!
+
+*** You have died. ***
+
+(The hourglass gives you exactly 8 turns from first entering the chamber before the entire area fills with sand. There is no warning, no countdown, and no indication that the hourglass is a threat rather than scenery. You must complete all remaining eastern rooms in 8 turns. There are three rooms to the east, each requiring multiple actions.)</div>
+  <div class="improvement"><strong>Design failure:</strong> A hidden time limit on a scenery object, with insufficient turns to complete the required actions, and no warning that haste is needed. <strong>Fix:</strong> If a timer exists, make it visible: "The sand is falling &mdash; you estimate a few minutes before it empties." Describe the urgency increasing: "The sand is nearly gone!" Give enough turns for the task, even with some exploration. Or let the player FLIP HOURGLASS to reset it. A timed challenge is fine; a secret timed challenge with impossible time constraints is not.</div>
+</section>
+
+<!-- ============================================================ -->
+<!--  PUZZLE 50                                                     -->
+<!-- ============================================================ -->
+
+<section class="puzzle" id="p50">
+  <h2>#50 &mdash; The Final Word <span class="badge inventive">Inventive</span></h2>
+  <div class="transcript">You stand in the Deepest Chamber of the Crypt. Before you: the Treasure of the Verb Parser, a crown of impossible beauty, hovering above a plinth. A final inscription reads:
+
+"Speak the word that began all adventures."
+
+<span class="prompt">&gt; SAY OPEN</span>
+"No."
+
+<span class="prompt">&gt; SAY ADVENTURE</span>
+"No."
+
+<span class="prompt">&gt; SAY LOOK</span>
+"No."
+
+<span class="prompt">&gt; SAY PLUGH</span>
+"No."
+
+<span class="prompt">&gt; XYZZY</span>
+Nothing happens.
+
+(XYZZY &mdash; the classic magic word from Colossal Cave Adventure, the game that began the genre &mdash; does not work as a command. It only works as an answer to the inscription. You must type SAY XYZZY. Also, it only works if you have completed all 49 previous puzzles in order, carrying every quest item. If you are missing any item &mdash; including items from puzzles that are unwinnable on most playthroughs &mdash; the game replies "You are not worthy" and seals the room forever.)
+
+<span class="prompt">&gt; SAY XYZZY</span>
+The word echoes through the crypt. The crown descends into your hands.
+
+Congratulations! You have completed THE CRYPT OF THE VERB PARSER!
+
+Your score is 50 out of 1000. (You lost 950 points for dying, using hints, and existing.)
+
+Thank you for playing. You will never get these hours back.</div>
+  <div class="improvement"><strong>Design failure:</strong> The final puzzle requires the exact phrasing SAY XYZZY (not just XYZZY), completion of all prior puzzles (many of which are unwinnable), and the "reward" is a mocking score that punishes the player for playing. <strong>Fix:</strong> Accept both XYZZY and SAY XYZZY. If prior completion is required, make all prior puzzles actually completable. The final score should reflect achievement, not contempt. The ending of a game &mdash; especially a punishing one &mdash; should reward perseverance. Let the player feel triumph, not regret. They've earned at least that much.</div>
+</section>
+
+<a href="#top" class="back-to-top">Back to Top</a>
+
+<footer>
+  Walkthrough by M. Fotherington-Thomas, who regrets everything.<br>
+  <em>The Crypt of the Verb Parser</em> &copy; 1987 Abyssal Software Ltd. (Dissolved 1988.) All rights reserved by no one.<br>
+  This walkthrough was written under duress. If you are reading this, it is too late for you also.
+</footer>
+
+</body>
+</html>
